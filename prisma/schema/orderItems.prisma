@@ -1,0 +1,14 @@
+model OrderItems {
+  id         String  @id @default(uuid())
+  orderId    String
+  medicineId String
+  quantity   Int
+  price      Decimal @db.Decimal(10, 2)
+
+  order    Orders    @relation(fields: [orderId], references: [id])
+  medicine Medicines @relation(fields: [medicineId], references: [id])
+
+  @@map("orderItems")
+  @@index([orderId])
+  @@index([medicineId])
+}

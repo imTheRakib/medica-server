@@ -1,0 +1,14 @@
+model Reviews {
+  id         String   @id @default(uuid())
+  userId     String
+  medicineId String
+  rating     Int?
+  comment    String   @db.VarChar(300)
+  createdAt  DateTime @default(now())
+
+  customer User      @relation(fields: [userId], references: [id])
+  medicine Medicines @relation(fields: [medicineId], references: [id])
+
+  @@map("reviews")
+  @@index([userId])
+}

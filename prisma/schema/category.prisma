@@ -1,0 +1,14 @@
+model Category {
+  id          String   @id @default(uuid())
+  name        String   @db.VarChar(255)
+  description String   @db.Text
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  userId      String
+
+  admin     User        @relation(fields: [userId], references: [id])
+  medicines Medicines[]
+
+  @@map("category")
+  @@index([userId])
+}
