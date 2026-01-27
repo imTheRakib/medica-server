@@ -1,7 +1,8 @@
 import express from "express";
-// import { toNodeHandler } from "better-auth/node";
+import { toNodeHandler } from "better-auth/node";
 import cors from "cors";
 import config from "./config";
+import { auth } from "./lib/auth";
 // import errorHandler from "./middlewares/globalErrorHandler";
 // import { notFound } from "./middlewares/notFound";
 
@@ -16,7 +17,7 @@ app.use(
 
 app.use(express.json());
 
-// app.all("/api/auth/*splat", toNodeHandler(auth));
+app.all("/api/auth/*splat", toNodeHandler(auth));
 
 // app.use(errorHandler);
 

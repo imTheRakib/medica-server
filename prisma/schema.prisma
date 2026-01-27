@@ -21,89 +21,162 @@ enum OrderStatus {
   CANCELLED
 }
 
-
 model Medicines {
-  id           String     @id @default(uuid())
-  name         String     @db.VarChar(255)
-  description  String     @db.Text
-  price        Float
-  stocks       Int?
+  id           String   @id @default(uuid())
+  name         String   @db.VarChar(255)
+  description  String   @db.Text
+  price        Decimal  @db.Decimal(10, 2)
+  stocks       Int      @default(0)
   thumbnail    String?
   manufacturer String
-  isActive     Boolean    @default(true)
+  isActive     Boolean  @default(true)
   categoryId   String
-  sellerId     String
-  views        Int        @default(0)
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
+  userId       String
+  views        Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
-  category     Category   @relation(fields: [categoryId],references: [id])
-  orderItems   OrderItems[]
-  reviews      Reviews[]
-
+  category   Category     @relation(fields: [categoryId], references: [id])
+  seller     User         @relation(fields: [userId], references: [id])
+  orderItems OrderItems[]
+  reviews    Reviews[]
 
   //indexing
-  @@index([sellerId])
+  @@index([userId])
+  @@index([categoryId])
   @@map("medicines")
 }
 
-model Orders{
-   id               String      @id @default(uuid())
-   customerId       String
-   totalAmount      Float
-   paymentMethod    String      @default("COD")
-   status           OrderStatus @default(PENDING)
-   shippingAddress  String
-   createdAt        DateTime    @default(now())
-   updatedAt        DateTime    @updatedAt
+model Orders {
+  id              String      @id @default(uuid())
+  userId          String
+  totalAmount     Decimal     @db.Decimal(10, 2)
+  paymentMethod   String      @default("COD")
+  status          OrderStatus @default(PENDING)
+  shippingAddress String
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
 
-   orderItems       OrderItems[]
+  customer User @relation(fields: [userId], references: [id])
 
-  @@index([customerId])
+  orderItems OrderItems[]
+
+  @@index([userId])
   @@map("orders")
 }
 
-model Category{
-   id           String     @id @default(uuid())
-   name         String     @db.VarChar(255)
-   description  String     @db.Text
-   createdAt    DateTime   @default(now())
-   updatedAt    DateTime   @updatedAt
-   adminId      String
+model Category {
+  id          String   @id @default(uuid())
+  name        String   @db.VarChar(255)
+  description String   @db.Text
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  userId      String
 
-   medicines    Medicines[]
+  admin     User        @relation(fields: [userId], references: [id])
+  medicines Medicines[]
 
   @@map("category")
-  @@index([adminId])
+  @@index([userId])
 }
 
 model Reviews {
-   id               String     @id @default(uuid())
-   customerId       String
-   medicineId       String
-   rating           Int?
-   comment          String     @db.VarChar(300)
-   createdAt        DateTime   @default(now())
+  id         String   @id @default(uuid())
+  userId     String
+  medicineId String
+  rating     Int?
+  comment    String   @db.VarChar(300)
+  createdAt  DateTime @default(now())
 
-   medicine         Medicines @relation(fields: [medicineId], references: [id])
+  customer User      @relation(fields: [userId], references: [id])
+  medicine Medicines @relation(fields: [medicineId], references: [id])
 
-   @@map("reviews")
-   @@index([customerId])
-
+  @@map("reviews")
+  @@index([userId])
 }
 
-model OrderItems{
-   id         String     @id @default(uuid())
-   orderId    String
-   medicineId String
-   sellerId   String
-   quantity   Int
-   price      Float
+model OrderItems {
+  id         String  @id @default(uuid())
+  orderId    String
+  medicineId String
+  quantity   Int
+  price      Decimal @db.Decimal(10, 2)
 
-  order      Orders    @relation(fields: [orderId], references: [id])
-  medicine   Medicines @relation(fields: [medicineId], references: [id])
+  order    Orders    @relation(fields: [orderId], references: [id])
+  medicine Medicines @relation(fields: [medicineId], references: [id])
 
-   @@map("orderItems")
-   @@index([orderId])
-   @@index([medicineId])
+  @@map("orderItems")
+  @@index([orderId])
+  @@index([medicineId])
+}
+
+model User {
+  id            String      @id
+  name          String
+  email         String
+  emailVerified Boolean     @default(false)
+  image         String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  sessions      Session[]
+  accounts      Account[]
+  medicines     Medicines[]
+  orders        Orders[]
+  reviews       Reviews[]
+  category      Category[]
+
+  role   String  @default("CUSTOMER")
+  phone  String?
+  status String? @default("ACTIVE")
+
+  @@unique([email])
+  @@map("user")
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([token])
+  @@index([userId])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+  @@map("verification")
 }
