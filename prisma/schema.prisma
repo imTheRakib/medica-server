@@ -1,0 +1,109 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+
+model Medicines {
+  id           String     @id @default(uuid())
+  name         String     @db.VarChar(255)
+  description  String     @db.Text
+  price        Float
+  stocks       Int?
+  thumbnail    String?
+  manufacturer String
+  isActive     Boolean    @default(true)
+  categoryId   String
+  sellerId     String
+  views        Int        @default(0)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  category     Category   @relation(fields: [categoryId],references: [id])
+  orderItems   OrderItems[]
+  reviews      Reviews[]
+
+
+  //indexing
+  @@index([sellerId])
+  @@map("medicines")
+}
+
+model Orders{
+   id               String      @id @default(uuid())
+   customerId       String
+   totalAmount      Float
+   paymentMethod    String      @default("COD")
+   status           OrderStatus @default(PENDING)
+   shippingAddress  String
+   createdAt        DateTime    @default(now())
+   updatedAt        DateTime    @updatedAt
+
+   orderItems       OrderItems[]
+
+  @@index([customerId])
+  @@map("orders")
+}
+
+model Category{
+   id           String     @id @default(uuid())
+   name         String     @db.VarChar(255)
+   description  String     @db.Text
+   createdAt    DateTime   @default(now())
+   updatedAt    DateTime   @updatedAt
+   adminId      String
+
+   medicines    Medicines[]
+
+  @@map("category")
+  @@index([adminId])
+}
+
+model Reviews {
+   id               String     @id @default(uuid())
+   customerId       String
+   medicineId       String
+   rating           Int?
+   comment          String     @db.VarChar(300)
+   createdAt        DateTime   @default(now())
+
+   medicine         Medicines @relation(fields: [medicineId], references: [id])
+
+   @@map("reviews")
+   @@index([customerId])
+
+}
+
+model OrderItems{
+   id         String     @id @default(uuid())
+   orderId    String
+   medicineId String
+   sellerId   String
+   quantity   Int
+   price      Float
+
+  order      Orders    @relation(fields: [orderId], references: [id])
+  medicine   Medicines @relation(fields: [medicineId], references: [id])
+
+   @@map("orderItems")
+   @@index([orderId])
+   @@index([medicineId])
+}
