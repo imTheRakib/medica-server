@@ -10,4 +10,16 @@ router.post(
   SellerManagementController.createMedicine,
 );
 
+router.put(
+  "/medicines/:id",
+  authMiddileware(UserRole.SELLER),
+  SellerManagementController.updateMedicine,
+);
+
+router.delete(
+  "/medicines/:id",
+  authMiddileware(UserRole.SELLER),
+  SellerManagementController.deleteMedicine,
+);
+
 export const SellerManagementRouter = router;

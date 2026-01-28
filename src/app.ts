@@ -6,7 +6,7 @@ import { auth } from "./lib/auth";
 import { AuthRouter } from "./modules/auth/auth.routes";
 import { SellerManagementRouter } from "./modules/sellerManagement/sellerManagement.routes";
 import { CategoryRouter } from "./modules/category/category.routes";
-// import errorHandler from "./middlewares/globalErrorHandler";
+ import errorHandler from "./middlewares/globalErrorHandler";
 // import { notFound } from "./middlewares/notFound";
 
 const app = express();
@@ -35,7 +35,7 @@ app.use("/api/category", CategoryRouter);
 
 // app.use("/api/admin");
 
-// app.use(errorHandler);
+app.use(errorHandler);
 
 // app.use(notFound);
 
