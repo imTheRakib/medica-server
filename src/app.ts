@@ -4,6 +4,8 @@ import cors from "cors";
 import config from "./config";
 import { auth } from "./lib/auth";
 import { AuthRouter } from "./modules/auth/auth.routes";
+import { SellerManagementRouter } from "./modules/sellerManagement/sellerManagement.routes";
+import { CategoryRouter } from "./modules/category/category.routes";
 // import errorHandler from "./middlewares/globalErrorHandler";
 // import { notFound } from "./middlewares/notFound";
 
@@ -27,7 +29,9 @@ app.all("/api/auth/*splat", toNodeHandler(auth));
 
 // app.use("/api/orders");
 
-// app.use("/api/seller");
+app.use("/api/seller", SellerManagementRouter);
+
+app.use("/api/category", CategoryRouter);
 
 // app.use("/api/admin");
 
