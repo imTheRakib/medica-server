@@ -6,7 +6,8 @@ import { auth } from "./lib/auth";
 import { AuthRouter } from "./modules/auth/auth.routes";
 import { SellerManagementRouter } from "./modules/sellerManagement/sellerManagement.routes";
 import { CategoryRouter } from "./modules/category/category.routes";
- import errorHandler from "./middlewares/globalErrorHandler";
+import errorHandler from "./middlewares/globalErrorHandler";
+import { OrderRouter } from "./modules/orders/orders.routes";
 // import { notFound } from "./middlewares/notFound";
 
 const app = express();
@@ -27,7 +28,7 @@ app.all("/api/auth/*splat", toNodeHandler(auth));
 //medicine
 // app.use("/api/medicines");
 
-// app.use("/api/orders");
+app.use("/api/orders", OrderRouter);
 
 app.use("/api/seller", SellerManagementRouter);
 
