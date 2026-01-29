@@ -109,6 +109,68 @@ const createOrder = async (
   return result;
 };
 
+const getUserOrders = async (userId: string) => {
+  const result = await prisma.orders.findMany({
+    where: { userId },
+    include: {
+      orderItems: {
+        include: {
+          medicine: {
+            select: {
+              id: true,
+              name: true,
+              price: true,
+            },
+          },
+        },
+      },
+    },
+
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  return result;
+};
+
+const getOrderDetails = async (orderId: string, userId: string) => {
+  const result = await prisma.orders.findUnique({
+    where: {
+      id: orderId,
+      userId,
+    },
+    include: {
+      orderItems: {
+        include: {
+          medicine: {
+            select: {
+              id: true,
+              name: true,
+              price: true,
+            },
+          },
+        },
+      },
+      customer: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+        },
+      },
+    },
+  });
+
+  if (!result) {
+    throw new Error("Order not found");
+  }
+
+  return result;
+};
+
 export const OrderService = {
   createOrder,
+  getOrderDetails,
+  getUserOrders,
 };

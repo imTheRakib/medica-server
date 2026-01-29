@@ -39,6 +39,63 @@ const createOrder = async (req: Request, res: Response) => {
   }
 };
 
+const getUserOrders = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id;
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: "User not authenticated",
+      });
+    }
+
+    const result = await OrderService.getUserOrders(userId);
+
+    res.status(200).json({
+      success: true,
+      data: result,
+    });
+  } catch (error: any) {
+    console.error("Error in getUserOrders:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message || "Failed to fetch Order",
+    });
+  }
+};
+
+const getOrderDetails = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    const { id: orderId } = req.params;
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: "User not authenticated",
+      });
+    }
+
+    const result = await OrderService.getOrderDetails(
+      orderId as string,
+      userId,
+    );
+
+    res.status(200).json({
+      success: true,
+      data: result,
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: error.message || "Failed to fetch Order",
+    });
+  }
+};
+
 export const OrderController = {
   createOrder,
+  getUserOrders,
+  getOrderDetails,
 };

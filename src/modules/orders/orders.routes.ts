@@ -4,6 +4,18 @@ import { OrderController } from "./orders.controller";
 
 const router = Router();
 
+router.get(
+  "/",
+  authMiddileware(UserRole.CUSTOMER),
+  OrderController.getUserOrders,
+);
+
+router.get(
+  "/:id",
+  authMiddileware(UserRole.CUSTOMER),
+  OrderController.getOrderDetails,
+);
+
 router.post(
   "/",
   authMiddileware(UserRole.CUSTOMER),
@@ -11,5 +23,3 @@ router.post(
 );
 
 export const OrderRouter = router;
-
-//order -> orderitems ->
