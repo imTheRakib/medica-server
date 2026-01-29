@@ -12,10 +12,27 @@ const createCategory = async (
   return result;
 };
 
-const getAllCategories = async () => {
-  const result = await prisma.category.findMany();
+const getAllCategories = async (payload: {
+  page: number;
+  limit: number;
+  skip: number;
+}) => {
+  const result = await prisma.category.findMany({
+    take: payload.limit,
+    skip: payload.skip,
+  });
 
-  return result;
+  const total = await prisma.category.count();
+
+  return {
+    result,
+    meta: {
+      page: payload.page,
+      limit: payload.limit,
+      total,
+      totalPage: Math.ceil(total / payload.limit),
+    },
+  };
 };
 
 export const CategoryService = {

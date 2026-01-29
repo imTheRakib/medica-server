@@ -53,6 +53,18 @@ const getAllMedicines = async (payload: {
     orderBy: { [payload.sortBy]: payload.sortOrder },
 
     include: {
+      reviews: {
+        orderBy: { createdAt: "desc" },
+        include: {
+          customer: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+            },
+          },
+        },
+      },
       _count: {
         select: {
           reviews: true,

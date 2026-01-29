@@ -10,6 +10,8 @@ import errorHandler from "./middlewares/globalErrorHandler";
 import { OrderRouter } from "./modules/orders/orders.routes";
 import { AdminRouter } from "./modules/admin/admin.routes";
 import { MedicinesRouter } from "./modules/medicines/medicines.routes";
+import { notFound } from "./middlewares/notFound";
+import { ReviewRouter } from "./modules/reviews/reviews.routes";
 // import { notFound } from "./middlewares/notFound";
 
 const app = express();
@@ -37,8 +39,10 @@ app.use("/api/category", CategoryRouter);
 
 app.use("/api/admin", AdminRouter);
 
+app.use("/api/reviews", ReviewRouter);
+
 app.use(errorHandler);
 
-// app.use(notFound);
+app.use(notFound);
 
 export default app;

@@ -1,9 +1,13 @@
 import { NextFunction, Request, Response } from "express";
 import { AdminService } from "./admin.service";
+import paginationAndSortgHelper from "../../helpers/paginationAndSorting";
 
 const getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const result = await AdminService.getAllUsers();
+    //pagination
+    const { page, limit, skip } = paginationAndSortgHelper(req.query);
+
+    const result = await AdminService.getAllUsers({ page, limit, skip });
 
     res.status(200).json({
       success: true,

@@ -17,14 +17,15 @@ const createOrder = async (
   shippingAddress: string,
   paymentMethod: string,
 ) => {
-  //validate order item
   if (orderItems.length === 0) {
-    throw new Error("Order must containt at least one item");
+    throw new Error("Order must contain at least one item");
   }
 
-  //calc total amount of medicine
-  let totalAmount = 0;
-  const orderItemsWithPrice: IOrderItemWithPrice[] = [];
+  // Group items by seller
+  const itemsBySeller = new Map<
+    string,
+    { items: IOrderItemWithPrice[]; total: number }
+  >();
 
   for (const item of orderItems) {
     const medicineData = await prisma.medicines.findUnique({
@@ -34,76 +35,91 @@ const createOrder = async (
         price: true,
         name: true,
         stocks: true,
+        userId: true,
       },
     });
+
     if (!medicineData) {
-      throw new Error("Medicine not found");
+      throw new Error(`Medicine not found: ${item.medicineId}`);
     }
+
     if (medicineData.stocks < item.quantity) {
       throw new Error(
-        `Insufficient stocks, Available: ${medicineData.stocks}, Requested: ${item.quantity}`,
+        `Insufficient stocks. Available: ${medicineData.stocks}, Requested: ${item.quantity}`,
       );
     }
 
     const itemTotal = Number(medicineData.price) * item.quantity;
-    totalAmount += itemTotal;
+    const sellerId = medicineData.userId;
 
-    orderItemsWithPrice.push({
+    if (!itemsBySeller.has(sellerId)) {
+      itemsBySeller.set(sellerId, { items: [], total: 0 });
+    }
+
+    const sellerGroup = itemsBySeller.get(sellerId)!;
+    sellerGroup.items.push({
       medicineId: item.medicineId,
       quantity: item.quantity,
       price: Number(medicineData.price),
     });
+    sellerGroup.total += itemTotal;
   }
 
-  //crate order
+  // crete separate orders for each seller
   const result = await prisma.$transaction(async (tx) => {
-    const order = await tx.orders.create({
-      data: {
-        userId,
-        totalAmount,
-        paymentMethod,
-        shippingAddress,
-        orderItems: {
-          create: orderItemsWithPrice,
+    const orders = [];
+
+    for (const [sellerId, { items, total }] of itemsBySeller) {
+      const order = await tx.orders.create({
+        data: {
+          userId,
+          totalAmount: total,
+          paymentMethod,
+          shippingAddress,
+          orderItems: {
+            create: items,
+          },
         },
-      },
-      include: {
-        orderItems: {
-          include: {
-            medicine: {
-              select: {
-                id: true,
-                name: true,
-                price: true,
+        include: {
+          orderItems: {
+            include: {
+              medicine: {
+                select: {
+                  id: true,
+                  name: true,
+                  price: true,
+                  seller: {
+                    select: {
+                      id: true,
+                      name: true,
+                    },
+                  },
+                },
               },
             },
           },
-        },
-        customer: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-          },
-        },
-      },
-    });
-
-    //update stocks
-    for (const item of orderItems) {
-      await tx.medicines.update({
-        where: {
-          id: item.medicineId,
-        },
-        data: {
-          stocks: {
-            decrement: item.quantity,
+          customer: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+            },
           },
         },
       });
+
+      orders.push(order);
     }
 
-    return order;
+    // Update stocks
+    for (const item of orderItems) {
+      await tx.medicines.update({
+        where: { id: item.medicineId },
+        data: { stocks: { decrement: item.quantity } },
+      });
+    }
+
+    return orders;
   });
 
   return result;
@@ -131,7 +147,11 @@ const getUserOrders = async (userId: string) => {
     },
   });
 
-  return result;
+  const total = await prisma.orders.count({
+    where: { userId },
+  });
+
+  return { result, meta: { total } };
 };
 
 const getOrderDetails = async (orderId: string, userId: string) => {

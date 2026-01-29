@@ -7,8 +7,14 @@ export enum UserStatus {
   BANNED = "BANNED",
 }
 
-const getAllUsers = async () => {
+const getAllUsers = async (payload: {
+  page: number;
+  limit: number;
+  skip: number;
+}) => {
   const result = await prisma.user.findMany({
+    take: payload.limit,
+    skip: payload.skip,
     where: {
       role: {
         not: UserRole.ADMIN,
@@ -16,7 +22,21 @@ const getAllUsers = async () => {
     },
   });
 
-  return result;
+  const total = await prisma.user.count({
+    where: {
+      role: { not: UserRole.ADMIN },
+    },
+  });
+
+  return {
+    result,
+    meta: {
+      page: payload.page,
+      limit: payload.limit,
+      total,
+      totalPage: Math.ceil(total / payload.limit),
+    },
+  };
 };
 
 const updateUserStatus = async (userId: string, newStatus: UserStatus) => {
@@ -109,5 +129,5 @@ const getAllTableStats = async () => {
 export const AdminService = {
   getAllUsers,
   updateUserStatus,
-  getAllTableStats
+  getAllTableStats,
 };
