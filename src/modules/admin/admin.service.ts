@@ -56,7 +56,58 @@ const updateUserStatus = async (userId: string, newStatus: UserStatus) => {
   return result;
 };
 
+const getAllTableStats = async () => {
+  return await prisma.$transaction(
+    async (tx) => {
+      const [
+        totalMedicines,
+        activeMedicines,
+        inactiveMedicines,
+        totalOrders,
+        totalReviews,
+        totalUsers,
+        sellerCount,
+        buyerCount,
+        totalViews,
+        totalRevenue,
+        outOfStock,
+      ] = await Promise.all([
+        await tx.medicines.count(),
+        await tx.medicines.count({ where: { isActive: true } }),
+        await tx.medicines.count({ where: { isActive: false } }),
+        await tx.orderItems.count(),
+        await tx.reviews.count(),
+        await tx.user.count(),
+        await tx.user.count({ where: { role: "SELLER" } }),
+        await tx.user.count({ where: { role: "USER" } }),
+        await tx.medicines.aggregate({ _sum: { views: true } }),
+        await tx.medicines.aggregate({ _sum: { price: true } }),
+        await tx.medicines.count({ where: { stocks: { lte: 0 } } }),
+      ]);
+
+      return {
+        totalMedicines,
+        activeMedicines,
+        inactiveMedicines,
+        totalOrders,
+        totalReviews,
+        totalUsers,
+        sellerCount,
+        buyerCount,
+        totalViews: totalViews._sum.views || 0,
+        totalRevenue: Number(totalRevenue._sum.price) || 0,
+        outOfStock,
+      };
+    },
+    {
+      timeout: 15000,
+      maxWait: 5000,
+    },
+  );
+};
+
 export const AdminService = {
   getAllUsers,
   updateUserStatus,
+  getAllTableStats
 };

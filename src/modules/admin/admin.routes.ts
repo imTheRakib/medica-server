@@ -10,6 +10,12 @@ router.get(
   AdminController.getAllUsers,
 );
 
+router.get(
+  "/getAllTableStats",
+  authMiddileware(UserRole.ADMIN),
+  AdminController.getAllTableStats,
+);
+
 router.patch(
   "/users/:id",
   authMiddileware(UserRole.ADMIN),

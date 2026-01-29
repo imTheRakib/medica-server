@@ -9,6 +9,7 @@ import { CategoryRouter } from "./modules/category/category.routes";
 import errorHandler from "./middlewares/globalErrorHandler";
 import { OrderRouter } from "./modules/orders/orders.routes";
 import { AdminRouter } from "./modules/admin/admin.routes";
+import { MedicinesRouter } from "./modules/medicines/medicines.routes";
 // import { notFound } from "./middlewares/notFound";
 
 const app = express();
@@ -26,7 +27,7 @@ app.use("/api/auth", AuthRouter);
 
 app.all("/api/auth/*splat", toNodeHandler(auth));
 
-// app.use("/api/medicines");
+app.use("/api/medicines", MedicinesRouter);
 
 app.use("/api/orders", OrderRouter);
 

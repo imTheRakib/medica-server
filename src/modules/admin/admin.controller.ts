@@ -38,7 +38,26 @@ const updateUserStatus = async (
   }
 };
 
+const getAllTableStats = async (req: Request, res: Response) => {
+  try {
+    const result = await AdminService.getAllTableStats();
+
+    res.status(200).json({
+      success: true,
+      data: result,
+    });
+  } catch (error: any) {
+    const errorMessage =
+      error instanceof Error ? error.message : "Statistics fetched failed!";
+    res.status(400).json({
+      error: errorMessage,
+      details: error,
+    });
+  }
+};
+
 export const AdminController = {
   getAllUsers,
   updateUserStatus,
+  getAllTableStats,
 };
