@@ -1,7 +1,7 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { OrderService } from "./order.service";
 
-const createOrder = async (req: Request, res: Response) => {
+const createOrder = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { orderItems, shippingAddress, paymentMethod } = req.body;
     const userId = req.user?.id;
@@ -32,14 +32,15 @@ const createOrder = async (req: Request, res: Response) => {
       data: result,
     });
   } catch (error: any) {
-    res.status(500).json({
-      success: false,
-      message: error || "Failed to create Order",
-    });
+    next(error);
   }
 };
 
-const getUserOrders = async (req: Request, res: Response) => {
+const getUserOrders = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const userId = req.user?.id;
 
@@ -57,15 +58,15 @@ const getUserOrders = async (req: Request, res: Response) => {
       data: result,
     });
   } catch (error: any) {
-    console.error("Error in getUserOrders:", error);
-    res.status(500).json({
-      success: false,
-      message: error.message || "Failed to fetch Order",
-    });
+    next(error);
   }
 };
 
-const getOrderDetails = async (req: Request, res: Response) => {
+const getOrderDetails = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const userId = req.user?.id;
     const { id: orderId } = req.params;
@@ -87,10 +88,7 @@ const getOrderDetails = async (req: Request, res: Response) => {
       data: result,
     });
   } catch (error: any) {
-    res.status(500).json({
-      success: false,
-      message: error.message || "Failed to fetch Order",
-    });
+    next(error);
   }
 };
 

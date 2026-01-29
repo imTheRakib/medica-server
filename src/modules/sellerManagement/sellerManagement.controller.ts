@@ -1,7 +1,11 @@
 import { NextFunction, Request, Response } from "express";
 import { SellerManagementService } from "./sellerManagement.service";
 
-const createMedicine = async (req: Request, res: Response) => {
+const createMedicine = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const result = await SellerManagementService.createMedicine(
       req.body,
@@ -13,10 +17,7 @@ const createMedicine = async (req: Request, res: Response) => {
       data: result,
     });
   } catch (error: any) {
-    res.status(500).json({
-      success: false,
-      message: error || "Failed to create medicine",
-    });
+    next(error);
   }
 };
 

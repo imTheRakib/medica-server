@@ -4,6 +4,16 @@ import { AdminController } from "./admin.controller";
 
 const router = Router();
 
-router.get("/", authMiddileware(UserRole.ADMIN), AdminController.getAllUsers);
+router.get(
+  "/users",
+  authMiddileware(UserRole.ADMIN),
+  AdminController.getAllUsers,
+);
+
+router.patch(
+  "/users/:id",
+  authMiddileware(UserRole.ADMIN),
+  AdminController.updateUserStatus,
+);
 
 export const AdminRouter = router;
