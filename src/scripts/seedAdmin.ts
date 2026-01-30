@@ -1,6 +1,7 @@
 import config from "../config";
 import { prisma } from "../lib/prisma";
-import { UserRole } from "../middlewares/authMiddleware";
+import { UserRole } from "../types/enums/UserRoles";
+
 
 const seedAdmin = async () => {
   try {
