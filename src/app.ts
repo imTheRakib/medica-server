@@ -1,4 +1,4 @@
-import express from "express";
+import express, { Request, Response } from "express";
 import { toNodeHandler } from "better-auth/node";
 import cors from "cors";
 import config from "./config";
@@ -24,6 +24,51 @@ app.use(
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+app.get("/", (req: Request, res: Response) => {
+  res.json({
+    success: true,
+    message: "Medica - Medicine Management System API",
+    description:
+      "A comprehensive medicine management system for sellers and customers",
+    version: "1.0.0",
+    endpoints: {
+      auth: "/api/auth",
+      medicines: "/api/medicines",
+      orders: "/api/orders",
+      seller: "/api/seller",
+      admin: "/api/admin",
+      categories: "/api/category",
+      reviews: "/api/reviews",
+    },
+    features: {
+      medicines: [
+        "Browse all medicines",
+        "Get featured medicines",
+        "Get top viewed medicines",
+        "Medicine details with reviews",
+      ],
+      seller: [
+        "Medicine management",
+        "Order management",
+        "Sales statistics",
+        "Inventory tracking",
+      ],
+      customer: [
+        "Place orders",
+        "Order history",
+        "Cancel orders",
+        "Product reviews",
+      ],
+      admin: [
+        "User management",
+        "System statistics",
+        "Featured medicine control",
+      ],
+    },
+    documentation: "Contact developer for API documentation",
+  });
+});
 
 app.use("/api/auth", AuthRouter);
 
