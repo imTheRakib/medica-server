@@ -72,7 +72,6 @@ function errorHandler(
   res.status(statusCode).json({
     success: false,
     message: errorMsg,
-    error: errorDetails,
   });
 }
 

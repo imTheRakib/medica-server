@@ -1,11 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { auth as betterAuth } from "../lib/auth";
-
-export enum UserRole {
-  CUSTOMER = "CUSTOMER",
-  ADMIN = "ADMIN",
-  SELLER = "SELLER",
-}
+import { UserRole } from "../types/enums/UserRoles";
 
 const authMiddileware = (...roles: UserRole[]) => {
   return async (req: Request, res: Response, next: NextFunction) => {

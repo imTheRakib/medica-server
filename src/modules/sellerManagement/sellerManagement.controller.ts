@@ -8,13 +8,36 @@ const createMedicine = async (
   next: NextFunction,
 ) => {
   try {
+    const { name, description, price, stocks, manufacturer, categoryId } =
+      req.body;
+    const imageFile = req.file;
+
+    const medicineData = {
+      name: name.trim(),
+      description: description.trim(),
+      price: parseFloat(price),
+      stocks: parseInt(stocks),
+      manufacturer: manufacturer.trim(),
+      categoryId: categoryId.trim(),
+    };
+    //validation
+    if (medicineData.price <= 0) {
+      throw new Error("Price must be a valid positive number");
+    }
+
+    if (medicineData.stocks < 0) {
+      throw new Error("Stocks must be a valid positive number");
+    }
+
     const result = await SellerManagementService.createMedicine(
-      req.body,
+      medicineData,
       req.user?.id as string,
+      imageFile,
     );
 
     res.status(201).json({
       success: true,
+      message: "Medicine created successfully",
       data: result,
     });
   } catch (error: any) {
@@ -129,10 +152,38 @@ const getSellerOrders = async (
   }
 };
 
+const getSellerStats = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const sellerId = req.user?.id;
+
+    if (!sellerId) {
+      return res.status(401).json({
+        success: false,
+        message: "User not authenticated",
+      });
+    }
+
+    const result = await SellerManagementService.getSellerStats(sellerId);
+
+    res.status(200).json({
+      success: true,
+      message: "Seller stats retrieved successfully",
+      data: result,
+    });
+  } catch (error: any) {
+    next(error);
+  }
+};
+
 export const SellerManagementController = {
   createMedicine,
   updateMedicine,
   deleteMedicine,
   updateOrderStatus,
   getSellerOrders,
+  getSellerStats,
 };

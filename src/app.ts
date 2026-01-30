@@ -12,7 +12,6 @@ import { AdminRouter } from "./modules/admin/admin.routes";
 import { MedicinesRouter } from "./modules/medicines/medicines.routes";
 import { notFound } from "./middlewares/notFound";
 import { ReviewRouter } from "./modules/reviews/reviews.routes";
-// import { notFound } from "./middlewares/notFound";
 
 const app = express();
 
@@ -24,6 +23,7 @@ app.use(
 );
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 app.use("/api/auth", AuthRouter);
 

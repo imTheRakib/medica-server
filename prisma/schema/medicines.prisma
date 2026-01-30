@@ -18,6 +18,8 @@ model Medicines {
   orderItems OrderItems[]
   reviews    Reviews[]
 
+  @@unique([name, userId, manufacturer], name: "unique_medicine_per_seller")
+
   //indexing
   @@index([userId])
   @@index([categoryId])

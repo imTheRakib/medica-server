@@ -1,6 +1,8 @@
 import { Router } from "express";
-import authMiddileware, { UserRole } from "../../middlewares/authMiddleware";
+import authMiddileware from "../../middlewares/authMiddleware";
 import { SellerManagementController } from "./sellerManagement.controller";
+import { upload } from "../../config/upload";
+import { UserRole } from "../../types/enums/UserRoles";
 
 const router = Router();
 
@@ -10,9 +12,16 @@ router.get(
   SellerManagementController.getSellerOrders,
 );
 
+router.get(
+  "/statistics",
+  authMiddileware(UserRole.SELLER),
+  SellerManagementController.getSellerStats,
+);
+
 router.post(
   "/medicines",
   authMiddileware(UserRole.SELLER),
+  upload.single("thumbnail"),
   SellerManagementController.createMedicine,
 );
 

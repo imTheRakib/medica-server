@@ -1,6 +1,7 @@
 import { Router } from "express";
-import authMiddileware, { UserRole } from "../../middlewares/authMiddleware";
+import authMiddileware from "../../middlewares/authMiddleware";
 import { OrderController } from "./orders.controller";
+import { UserRole } from "../../types/enums/UserRoles";
 
 const router = Router();
 

@@ -11,6 +11,7 @@ const config = {
   GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
   GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
   BETTER_AUTH_URL: process.env.BETTER_AUTH_URL,
+  IMAGEBB_API_KEY: process.env.IMAGEBB_API_KEY,
 };
 
 export default config;

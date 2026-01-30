@@ -1,11 +1,6 @@
 import { prisma } from "../../lib/prisma";
-import { UserRole } from "../../middlewares/authMiddleware";
-
-export enum UserStatus {
-  ACTIVE = "ACTIVE",
-  INACTIVE = "INACTIVE",
-  BANNED = "BANNED",
-}
+import { UserRole } from "../../types/enums/UserRoles";
+import { UserStatus } from "../../types/enums/UserStatus";
 
 const getAllUsers = async (payload: {
   page: number;

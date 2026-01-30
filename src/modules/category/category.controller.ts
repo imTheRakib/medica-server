@@ -1,6 +1,5 @@
 import { NextFunction, Request, Response } from "express";
 import { CategoryService } from "./category.service";
-import { get } from "node:http";
 import paginationAndSortgHelper from "../../helpers/paginationAndSorting";
 
 const createCategory = async (
@@ -29,10 +28,13 @@ const getAllCategories = async (
   next: NextFunction,
 ) => {
   try {
-
     const { page, limit, skip } = paginationAndSortgHelper(req.query);
 
-    const result = await CategoryService.getAllCategories({page, limit, skip});
+    const result = await CategoryService.getAllCategories({
+      page,
+      limit,
+      skip,
+    });
 
     res.status(200).json({
       success: true,
