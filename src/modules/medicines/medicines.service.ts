@@ -166,7 +166,146 @@ const getMedicinebyId = async (medicineId: string) => {
   );
 };
 
+const getIsFeaturedMedicine = async () => {
+  const result = await prisma.medicines.findMany({
+    where: {
+      isFeatured: true,
+      isActive: true,
+      stocks: { gt: 0 },
+    },
+    take: 10,
+    orderBy: [{ views: "desc" }, { createdAt: "desc" }],
+    include: {
+      category: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+      seller: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+        },
+      },
+      reviews: {
+        select: {
+          rating: true,
+        },
+      },
+      _count: {
+        select: {
+          reviews: true,
+        },
+      },
+    },
+  });
+
+  //calculate average rating
+  const transformedResult = result.map((medicine) => {
+    const totalRating = medicine.reviews.reduce(
+      (sum, review) => sum + (review.rating || 0),
+      0,
+    );
+    const averageRating =
+      medicine.reviews.length > 0 ? totalRating / medicine.reviews.length : 0;
+
+    return {
+      id: medicine.id,
+      name: medicine.name,
+      description: medicine.description,
+      price: Number(medicine.price),
+      stocks: medicine.stocks,
+      thumbnail: medicine.thumbnail,
+      manufacturer: medicine.manufacturer,
+      isActive: medicine.isActive,
+      isFeatured: medicine.isFeatured,
+      views: medicine.views,
+      createdAt: medicine.createdAt,
+      updatedAt: medicine.updatedAt,
+      category: medicine.category,
+      seller: medicine.seller,
+      reviewCount: medicine._count.reviews,
+      averageRating: Math.round(averageRating * 100) / 100,
+    };
+  });
+
+  return transformedResult;
+};
+
+const getTopViewedMedicine = async () => {
+  const result = await prisma.medicines.findMany({
+    where: {
+      isActive: true,
+      stocks: { gt: 0 },
+    },
+    take: 10,
+    orderBy: [{ views: "desc" }, { createdAt: "desc" }],
+    include: {
+      category: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+      seller: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+        },
+      },
+      reviews: {
+        select: {
+          rating: true,
+        },
+      },
+      _count: {
+        select: {
+          reviews: true,
+          orderItems: true,
+        },
+      },
+    },
+  });
+
+  //alculate average rating
+  const transformedResult = result.map((medicine) => {
+    const totalRating = medicine.reviews.reduce(
+      (sum, review) => sum + (review.rating || 0),
+      0,
+    );
+    const averageRating =
+      medicine.reviews.length > 0 ? totalRating / medicine.reviews.length : 0;
+
+    return {
+      id: medicine.id,
+      name: medicine.name,
+      description: medicine.description,
+      price: Number(medicine.price),
+      stocks: medicine.stocks,
+      thumbnail: medicine.thumbnail,
+      manufacturer: medicine.manufacturer,
+      isActive: medicine.isActive,
+      isFeatured: medicine.isFeatured,
+      views: medicine.views,
+      createdAt: medicine.createdAt,
+      updatedAt: medicine.updatedAt,
+      category: medicine.category,
+      seller: medicine.seller,
+      reviewCount: medicine._count.reviews,
+      totalSales: medicine._count.orderItems,
+      averageRating: Math.round(averageRating * 100) / 100,
+    };
+  });
+
+  return transformedResult;
+};
+
 export const MedicinesService = {
   getAllMedicines,
   getMedicinebyId,
+  getIsFeaturedMedicine,
+  getTopViewedMedicine,
 };

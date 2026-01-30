@@ -70,7 +70,45 @@ const getMedicinebyId = async (
   }
 };
 
+const getIsFeaturedMedicine = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const result = await MedicinesService.getIsFeaturedMedicine();
+
+    res.status(200).json({
+      success: true,
+      message: "Featured medicines retrieved successfully",
+      data: result,
+    });
+  } catch (error: any) {
+    next(error);
+  }
+};
+
+const getTopViewedMedicine = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const result = await MedicinesService.getTopViewedMedicine();
+
+    res.status(200).json({
+      success: true,
+      message: "Top viewed medicines retrieved successfully",
+      data: result,
+    });
+  } catch (error: any) {
+    next(error);
+  }
+};
+
 export const MedicinesController = {
   getAllMedicines,
   getMedicinebyId,
+  getIsFeaturedMedicine,
+  getTopViewedMedicine,
 };
