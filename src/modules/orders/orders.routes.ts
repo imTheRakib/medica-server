@@ -23,4 +23,10 @@ router.post(
   OrderController.createOrder,
 );
 
+router.patch(
+  "/cancel/:id",
+  authMiddileware(UserRole.CUSTOMER),
+  OrderController.cancelOrder,
+);
+
 export const OrderRouter = router;

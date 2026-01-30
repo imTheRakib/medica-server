@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { OrderService } from "./order.service";
+import { OrderStatus } from "../../types/enums/OrderStatus";
 
 const createOrder = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -92,8 +93,41 @@ const getOrderDetails = async (
   }
 };
 
+const cancelOrder = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { id: orderId } = req.params;
+    const userId = req.user?.id;
+    const { status } = req.body;
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: "User not authenticated",
+      });
+    }
+
+    if (status !== OrderStatus.CANCELLED) {
+      return res.status(400).json({
+        success: false,
+        message: "Customers can only update order status to CANCELLED",
+      });
+    }
+
+    const result = await OrderService.cancelOrder(orderId as string, userId);
+
+    res.status(200).json({
+      success: true,
+      message: "Order cancelled successfully",
+      data: result,
+    });
+  } catch (error: any) {
+    next(error);
+  }
+};
+
 export const OrderController = {
   createOrder,
   getUserOrders,
   getOrderDetails,
+  cancelOrder,
 };

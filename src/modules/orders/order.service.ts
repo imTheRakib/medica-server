@@ -1,4 +1,5 @@
 import { prisma } from "../../lib/prisma";
+import { OrderStatus } from "../../types/enums/OrderStatus";
 
 interface IOrderItemInput {
   medicineId: string;
@@ -189,8 +190,75 @@ const getOrderDetails = async (orderId: string, userId: string) => {
   return result;
 };
 
+const cancelOrder = async (orderId: string, userId: string) => {
+  const orderData = await prisma.orders.findUniqueOrThrow({
+    where: {
+      id: orderId,
+      userId: userId,
+    },
+    include: {
+      orderItems: true,
+    },
+  });
+
+  // check cancel validity
+  if (orderData.status === OrderStatus.CANCELLED) {
+    throw new Error("Order is already cancelled");
+  }
+
+  if (orderData.status === OrderStatus.DELIVERED) {
+    throw new Error("Cannot cancel a delivered order");
+  }
+
+  if (orderData.status === OrderStatus.SHIPPED) {
+    throw new Error("Cannot cancel a shipped order");
+  }
+
+  // Cancel ordr
+  const result = await prisma.$transaction(async (tx) => {
+    const updatedOrder = await tx.orders.update({
+      where: {
+        id: orderId,
+      },
+      data: { status: OrderStatus.CANCELLED },
+      include: {
+        orderItems: {
+          include: {
+            medicine: {
+              select: {
+                id: true,
+                name: true,
+                price: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    // restock medicines
+    for (const item of orderData.orderItems) {
+      await tx.medicines.update({
+        where: {
+          id: item.medicineId,
+        },
+        data: {
+          stocks: {
+            increment: item.quantity,
+          },
+        },
+      });
+    }
+
+    return updatedOrder;
+  });
+
+  return result;
+};
+
 export const OrderService = {
   createOrder,
   getOrderDetails,
   getUserOrders,
+  cancelOrder,
 };
