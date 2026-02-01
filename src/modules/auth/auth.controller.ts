@@ -24,6 +24,37 @@ const getLoggedInUser = async (
   }
 };
 
+const updateProfile = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const user = req.user;
+    const { name, phone } = req.body;
+
+    if (!user) {
+      throw new Error("You are not authorized");
+    }
+
+    // ar one field need to provid
+    if (!name && !phone) {
+      throw new Error("At least one field (name or phone) is required");
+    }
+
+    const result = await AuthService.updateProfile(user.id, { name, phone });
+
+    res.status(200).json({
+      success: true,
+      message: "Profile updated successfully",
+      data: result,
+    });
+  } catch (error: any) {
+    next(error);
+  }
+};
+
 export const AuthController = {
   getLoggedInUser,
+  updateProfile,
 };

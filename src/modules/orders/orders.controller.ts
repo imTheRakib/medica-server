@@ -125,9 +125,65 @@ const cancelOrder = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
+const getCustomerOrderStats = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const userId = req.user?.id;
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: "User not authenticated",
+      });
+    }
+
+    const result = await OrderService.getCustomerOrderStats(userId);
+
+    res.status(200).json({
+      success: true,
+      message: "Customer order statistics retrieved successfully",
+      data: result,
+    });
+  } catch (error: any) {
+    next(error);
+  }
+};
+
+const getRecentOrders = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const userId = req.user?.id;
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: "User not authenticated",
+      });
+    }
+
+    const result = await OrderService.getRecentOrders(userId);
+
+    res.status(200).json({
+      success: true,
+      message: "Recent orders retrieved successfully",
+      data: result,
+    });
+  } catch (error: any) {
+    next(error);
+  }
+};
+
 export const OrderController = {
   createOrder,
   getUserOrders,
   getOrderDetails,
   cancelOrder,
+  getCustomerOrderStats,
+  getRecentOrders,
 };

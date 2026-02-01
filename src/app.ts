@@ -12,6 +12,7 @@ import { AdminRouter } from "./modules/admin/admin.routes";
 import { MedicinesRouter } from "./modules/medicines/medicines.routes";
 import { notFound } from "./middlewares/notFound";
 import { ReviewRouter } from "./modules/reviews/reviews.routes";
+import { CartRouter } from "./modules/cart/cart.routes";
 
 const app = express();
 
@@ -85,6 +86,8 @@ app.use("/api/category", CategoryRouter);
 app.use("/api/admin", AdminRouter);
 
 app.use("/api/reviews", ReviewRouter);
+
+app.use("/api/cart", CartRouter);
 
 app.use(errorHandler);
 

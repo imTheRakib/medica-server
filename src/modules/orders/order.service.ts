@@ -256,9 +256,101 @@ const cancelOrder = async (orderId: string, userId: string) => {
   return result;
 };
 
+const getCustomerOrderStats = async (userId: string) => {
+  return await prisma.$transaction(
+    async (tx) => {
+      const [totalOrders, pendingOrders, totalSpent, totalOrderItems] =
+        await Promise.all([
+          tx.orders.count({
+            where: { userId },
+          }),
+
+          tx.orders.count({
+            where: { userId, status: "PENDING" },
+          }),
+
+          // totalspent
+          tx.orders.aggregate({
+            where: {
+              userId,
+              status: {
+                not: "CANCELLED",
+              },
+            },
+            _sum: {
+              totalAmount: true,
+            },
+          }),
+
+          tx.orderItems.count({
+            where: {
+              order: {
+                userId,
+              },
+            },
+          }),
+        ]);
+
+      return {
+        totalOrders,
+        pendingOrders,
+        totalSpent: Number(totalSpent._sum.totalAmount) || 0,
+        totalOrderItems,
+      };
+    },
+    {
+      timeout: 15000,
+      maxWait: 5000,
+    },
+  );
+};
+
+const getRecentOrders = async (userId: string) => {
+  const result = await prisma.orders.findMany({
+    where: { userId },
+    take: 3,
+    orderBy: { createdAt: "desc" },
+    include: {
+      orderItems: {
+        include: {
+          medicine: {
+            select: {
+              id: true,
+              name: true,
+              thumbnail: true,
+              price: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  const transformedResult = result.map((order) => ({
+    id: order.id,
+    status: order.status,
+    totalAmount: Number(order.totalAmount),
+    createdAt: order.createdAt,
+    updatedAt: order.updatedAt,
+    itemCount: order.orderItems.length,
+    medicines: order.orderItems.map((item) => ({
+      id: item.medicine.id,
+      name: item.medicine.name,
+      thumbnail: item.medicine.thumbnail,
+      price: Number(item.medicine.price),
+      quantity: item.quantity,
+      totalPrice: Number(item.price),
+    })),
+  }));
+
+  return transformedResult;
+};
+
 export const OrderService = {
   createOrder,
   getOrderDetails,
   getUserOrders,
   cancelOrder,
+  getCustomerOrderStats,
+  getRecentOrders
 };

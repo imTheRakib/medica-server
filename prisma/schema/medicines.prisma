@@ -18,6 +18,7 @@ model Medicines {
   seller     User         @relation(fields: [userId], references: [id])
   orderItems OrderItems[]
   reviews    Reviews[]
+  cartItems  CartItem[]
 
   @@unique([name, userId, manufacturer], name: "unique_medicine_per_seller")
 

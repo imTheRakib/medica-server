@@ -12,6 +12,8 @@ model User {
   orders        Orders[]
   reviews       Reviews[]
   category      Category[]
+  cart          Cart?
+
 
   role   String  @default("CUSTOMER")
   phone  String?

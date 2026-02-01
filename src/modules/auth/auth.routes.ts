@@ -11,4 +11,10 @@ router.get(
   AuthController.getLoggedInUser,
 );
 
+router.patch(
+  "/update",
+  authMiddileware(UserRole.ADMIN, UserRole.CUSTOMER, UserRole.SELLER),
+  AuthController.updateProfile,
+);
+
 export const AuthRouter = router;

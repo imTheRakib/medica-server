@@ -12,6 +12,18 @@ router.get(
 );
 
 router.get(
+  "/customerOrderStats",
+  authMiddileware(UserRole.CUSTOMER),
+  OrderController.getCustomerOrderStats,
+);
+
+router.get(
+  "/recent",
+  authMiddileware(UserRole.CUSTOMER),
+  OrderController.getRecentOrders,
+);
+
+router.get(
   "/:id",
   authMiddileware(UserRole.CUSTOMER),
   OrderController.getOrderDetails,
