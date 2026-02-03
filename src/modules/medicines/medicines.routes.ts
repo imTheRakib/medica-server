@@ -11,4 +11,6 @@ router.get("/topViewed-medicine", MedicinesController.getTopViewedMedicine);
 
 router.get("/:id", MedicinesController.getMedicinebyId);
 
+router.get("/category/:categoryId", MedicinesController.getAllMedicineByCategoryId);
+
 export const MedicinesRouter = router;

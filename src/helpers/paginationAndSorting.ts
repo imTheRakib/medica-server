@@ -17,7 +17,7 @@ const paginationAndSortgHelper = (
   options: PaginationSortTypes,
 ): PaginationSortTypesReturn => {
   const page: number = Number(options.page) || 1;
-  const limit: number = Number(options.limit) || 5;
+  const limit: number = Number(options.limit) || 8;
 
   const skip: number = (page - 1) * limit;
 

@@ -155,6 +155,46 @@ const getUserOrders = async (userId: string) => {
   return { result, meta: { total } };
 };
 
+const getAllOrders = async (payload: {
+  page: number;
+  limit: number;
+  skip: number;
+}) => {
+  const result = await prisma.orders.findMany({
+    take: payload.limit,
+    skip: payload.skip,
+    include: {
+      orderItems: {
+        include: {
+          medicine: {
+            select: {
+              id: true,
+              name: true,
+              price: true,
+            },
+          },
+        },
+      },
+    },
+
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  const total = await prisma.orders.count();
+
+  return {
+    result,
+    meta: {
+      page: payload.page,
+      limit: payload.limit,
+      total,
+      totalPage: Math.ceil(total / payload.limit),
+    },
+  };
+};
+
 const getOrderDetails = async (orderId: string, userId: string) => {
   const result = await prisma.orders.findUnique({
     where: {
@@ -352,5 +392,6 @@ export const OrderService = {
   getUserOrders,
   cancelOrder,
   getCustomerOrderStats,
-  getRecentOrders
+  getRecentOrders,
+  getAllOrders,
 };

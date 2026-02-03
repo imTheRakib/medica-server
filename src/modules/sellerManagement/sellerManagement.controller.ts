@@ -179,6 +179,38 @@ const getSellerStats = async (
   }
 };
 
+const getSellerMedicines = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const sellerId = req.user?.id;
+
+    if (!sellerId) {
+      return res.status(401).json({
+        success: false,
+        message: "User not authenticated",
+      });
+    }
+
+    const { page, limit, skip } = paginationAndSortgHelper(req.query);
+
+    const result = await SellerManagementService.getSellerMedicines(sellerId, {
+      page,
+      limit,
+      skip,
+    });
+
+    res.status(200).json({
+      success: true,
+      data: result,
+    });
+  } catch (error: any) {
+    next(error);
+  }
+};
+
 export const SellerManagementController = {
   createMedicine,
   updateMedicine,
@@ -186,4 +218,5 @@ export const SellerManagementController = {
   updateOrderStatus,
   getSellerOrders,
   getSellerStats,
+  getSellerMedicines,
 };

@@ -5,7 +5,7 @@ model OrderItems {
   quantity   Int
   price      Decimal @db.Decimal(10, 2)
 
-  order    Orders    @relation(fields: [orderId], references: [id])
+  order    Orders    @relation(fields: [orderId], references: [id], onDelete: Cascade)
   medicine Medicines @relation(fields: [medicineId], references: [id])
 
   @@map("orderItems")

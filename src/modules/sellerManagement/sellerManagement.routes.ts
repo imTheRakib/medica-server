@@ -11,6 +11,11 @@ router.get(
   authMiddileware(UserRole.SELLER),
   SellerManagementController.getSellerOrders,
 );
+router.get(
+  "/medicines",
+  authMiddileware(UserRole.SELLER),
+  SellerManagementController.getSellerMedicines,
+);
 
 router.get(
   "/statistics",

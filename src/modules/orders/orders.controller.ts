@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { OrderService } from "./order.service";
 import { OrderStatus } from "../../types/enums/OrderStatus";
+import paginationAndSortgHelper from "../../helpers/paginationAndSorting";
 
 const createOrder = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -53,6 +54,32 @@ const getUserOrders = async (
     }
 
     const result = await OrderService.getUserOrders(userId);
+
+    res.status(200).json({
+      success: true,
+      data: result,
+    });
+  } catch (error: any) {
+    next(error);
+  }
+};
+
+const getAllOrders = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    // Pagination
+    const { page, limit, skip, sortBy, sortOrder } = paginationAndSortgHelper(
+      req.query,
+    );
+
+    const result = await OrderService.getAllOrders({
+      page,
+      limit,
+      skip,
+    });
 
     res.status(200).json({
       success: true,
@@ -186,4 +213,5 @@ export const OrderController = {
   cancelOrder,
   getCustomerOrderStats,
   getRecentOrders,
+  getAllOrders,
 };

@@ -101,69 +101,66 @@ const addtoCart = async (
   return cartItem;
 };
 
-const updateCart = async (
+const updateCartItem = async (
   userId: string,
-  medicineId: string,
+  cartItemId: string,
   quantity: number,
 ) => {
   if (quantity <= 0) {
     throw new Error("Quantity must be greater than 0");
   }
 
-  const medicine = await prisma.medicines.findUnique({
-    where: { id: medicineId },
+  const cartItem = await prisma.cartItem.findUnique({
+    where: { id: cartItemId },
+    include: {
+      cart: true,
+      medicine: true,
+    },
   });
 
-  if (!medicine) {
-    throw new Error("Medicine not found");
+  if (!cartItem) {
+    throw new Error("Cart item not found");
   }
 
-  if (medicine.stocks < quantity) {
+  if (cartItem.cart.userId !== userId) {
+    throw new Error("You don't have permission to update this item");
+  }
+
+  if (cartItem.medicine.stocks < quantity) {
     throw new Error("Insufficient stock available");
   }
 
-  const cart = await prisma.cart.findUnique({
-    where: { userId },
-  });
-
-  if (!cart) {
-    throw new Error("Cart not found");
-  }
-
-  const cartItem = await prisma.cartItem.update({
-    where: {
-      cartId_medicineId: {
-        cartId: cart.id,
-        medicineId,
-      },
-    },
+  const updatedCartItem = await prisma.cartItem.update({
+    where: { id: cartItemId },
     data: { quantity },
     include: {
       medicine: true,
     },
   });
 
-  return cartItem;
+  return updatedCartItem;
 };
 
-const removeFromCart = async (userId: string, medicineId: string) => {
-  // get cart
-  const cart = await prisma.cart.findUnique({
-    where: { userId },
+const removeFromCart = async (userId: string, cartItemId: string) => {
+  const cartItem = await prisma.cartItem.findUnique({
+    where: { id: cartItemId },
+    include: {
+      cart: true,
+      medicine: true,
+    },
   });
 
-  if (!cart) {
-    throw new Error("Cart not found");
+  if (!cartItem) {
+    throw new Error("Cart item not found");
   }
 
-  // remove cart item
+  if (cartItem.cart.userId !== userId) {
+    throw new Error("You don't have permission to remove this item");
+  }
+
+  // delete the cart item
   const deletedItem = await prisma.cartItem.delete({
-    where: {
-      cartId_medicineId: {
-        cartId: cart.id,
-        medicineId,
-      },
-    },
+    where: { id: cartItemId },
     include: {
       medicine: true,
     },
@@ -199,7 +196,7 @@ const clearCart = async (userId: string) => {
 export const CartService = {
   getCartItems,
   addtoCart,
-  updateCart,
+  updateCartItem,
   removeFromCart,
   clearCart,
 };

@@ -11,6 +11,7 @@ const getAllMedicines = async (
     const { search } = req.query;
 
     const searchString = typeof search === "string" ? search : undefined;
+    const categoryId = req.query.categoryId as string | undefined;
 
     const isActive = req.query.isActive
       ? req.query.isActive === "true"
@@ -31,6 +32,7 @@ const getAllMedicines = async (
       search: searchString,
       isActive,
       userId,
+      categoryId,
       page,
       limit,
       skip,
@@ -106,9 +108,57 @@ const getTopViewedMedicine = async (
   }
 };
 
+const getAllMedicineByCategoryId = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { categoryId } = req.params;
+    const { search } = req.query;
+
+    if (!categoryId) {
+      throw new Error("Category id is required");
+    }
+
+    const searchString = typeof search === "string" ? search : undefined;
+
+    const isActive = req.query.isActive
+      ? req.query.isActive === "true"
+        ? true
+        : req.query.isActive === "false"
+          ? false
+          : undefined
+      : undefined;
+
+    // Pagination
+    const { page, limit, skip, sortBy, sortOrder } = paginationAndSortgHelper(
+      req.query,
+    );
+
+    const result = await MedicinesService.getAllMedicineByCategoryId({
+      categoryId: categoryId as string,
+      search: searchString,
+      isActive,
+      page,
+      limit,
+      skip,
+      sortBy,
+      sortOrder,
+    });
+
+    res.status(200).json({
+      success: true,
+      data: result,
+    });
+  } catch (error: any) {
+    next(error);
+  }
+};
 export const MedicinesController = {
   getAllMedicines,
   getMedicinebyId,
   getIsFeaturedMedicine,
   getTopViewedMedicine,
+  getAllMedicineByCategoryId,
 };

@@ -50,24 +50,33 @@ const addtoCart = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-const updateCart = async (req: Request, res: Response, next: NextFunction) => {
+const updateCartItem = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const user = req.user;
-    const { medicineId, quantity } = req.body;
+    const { cartItemId } = req.params;
+    const { quantity } = req.body;
 
     if (!user) {
       throw new Error("You are not authorized");
     }
 
-    if (!medicineId || !quantity) {
-      throw new Error("Medicine ID and quantity are required");
+    if (!quantity) {
+      throw new Error("Quantity is required");
     }
 
-    const result = await CartService.updateCart(user.id, medicineId, quantity);
+    const result = await CartService.updateCartItem(
+      user.id,
+      cartItemId as string,
+      quantity,
+    );
 
     res.status(200).json({
       success: true,
-      message: "Cart updated successfully",
+      message: "Cart item updated successfully",
       data: result,
     });
   } catch (error: any) {
@@ -82,17 +91,20 @@ const removeFromCart = async (
 ) => {
   try {
     const user = req.user;
-    const { medicineId } = req.params;
+    const { cartItemId } = req.params;
 
     if (!user) {
       throw new Error("You are not authorized");
     }
 
-    if (!medicineId) {
+    if (!cartItemId) {
       throw new Error("Medicine ID is required");
     }
 
-    const result = await CartService.removeFromCart(user.id, medicineId as string);
+    const result = await CartService.removeFromCart(
+      user.id,
+      cartItemId as string,
+    );
 
     res.status(200).json({
       success: true,
@@ -127,7 +139,7 @@ const clearCart = async (req: Request, res: Response, next: NextFunction) => {
 export const CartController = {
   getCartItems,
   addtoCart,
-  updateCart,
+  updateCartItem,
   removeFromCart,
   clearCart,
 };

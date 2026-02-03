@@ -443,6 +443,54 @@ const getSellerStats = async (sellerId: string) => {
   );
 };
 
+const getSellerMedicines = async (
+  sellerId: string,
+  payload: {
+    page: number;
+    limit: number;
+    skip: number;
+  },
+) => {
+  const result = await prisma.medicines.findMany({
+    take: payload.limit,
+    skip: payload.skip,
+    where: {
+      userId: sellerId,
+    },
+    orderBy: { createdAt: "desc" },
+    include: {
+      category: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+    },
+  });
+
+  const total = await prisma.medicines.count({
+    where: {
+      userId: sellerId,
+    },
+  });
+
+  // Transform Decimal to number
+  const transformedResult = result.map((medicine) => ({
+    ...medicine,
+    price: Number(medicine.price),
+  }));
+
+  return {
+    result: transformedResult,
+    meta: {
+      page: payload.page,
+      limit: payload.limit,
+      total,
+      totalPage: Math.ceil(total / payload.limit),
+    },
+  };
+};
+
 export const SellerManagementService = {
   createMedicine,
   updateMedicine,
@@ -450,4 +498,5 @@ export const SellerManagementService = {
   updateOrderStatus,
   getSellerOrders,
   getSellerStats,
+  getSellerMedicines,
 };

@@ -5,6 +5,7 @@ const getAllMedicines = async (payload: {
   search: string | undefined;
   isActive: boolean | undefined;
   userId: string | undefined;
+  categoryId: string | undefined;
   page: number;
   limit: number;
   skip: number;
@@ -42,6 +43,10 @@ const getAllMedicines = async (payload: {
     andConditions.push({
       userId: payload.userId,
     });
+  }
+
+  if (payload.categoryId) {
+    andConditions.push({ categoryId: payload.categoryId });
   }
 
   const result = await prisma.medicines.findMany({
@@ -309,9 +314,123 @@ const getTopViewedMedicine = async () => {
   return transformedResult;
 };
 
+const getAllMedicineByCategoryId = async (payload: {
+  categoryId: string;
+  search?: string | undefined;
+  isActive?: boolean | undefined;
+  page: number;
+  limit: number;
+  skip: number;
+  sortBy: string;
+  sortOrder: string;
+}) => {
+  const category = await prisma.category.findUnique({
+    where: { id: payload.categoryId },
+    select: {
+      id: true,
+      name: true,
+      description: true,
+    },
+  });
+
+  if (!category) {
+    throw new Error("Category not found");
+  }
+
+  const andConditions: MedicinesWhereInput[] = [
+    {
+      categoryId: payload.categoryId,
+    },
+  ];
+
+  if (payload.search) {
+    andConditions.push({
+      OR: [
+        {
+          name: {
+            contains: payload.search as string,
+            mode: "insensitive",
+          },
+        },
+        {
+          description: {
+            contains: payload.search as string,
+            mode: "insensitive",
+          },
+        },
+      ],
+    });
+  }
+
+  if (typeof payload.isActive === "boolean") {
+    andConditions.push({
+      isActive: payload.isActive,
+    });
+  }
+
+  const result = await prisma.medicines.findMany({
+    take: payload.limit,
+    skip: payload.skip,
+    where: {
+      AND: andConditions,
+    },
+    orderBy: { [payload.sortBy]: payload.sortOrder },
+
+    include: {
+      category: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+      reviews: {
+        orderBy: { createdAt: "desc" },
+        include: {
+          customer: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+            },
+          },
+        },
+      },
+      _count: {
+        select: {
+          reviews: true,
+        },
+      },
+    },
+  });
+
+  const total = await prisma.medicines.count({
+    where: {
+      AND: andConditions,
+    },
+  });
+
+  // Transform Decimal to number
+  const transformedResult = result.map((medicine) => ({
+    ...medicine,
+    price: Number(medicine.price),
+  }));
+
+  return {
+    category,
+    response: transformedResult,
+    meta: {
+      page: payload.page,
+      limit: payload.limit,
+      total,
+      totalPage: Math.ceil(total / payload.limit),
+    },
+  };
+};
+
 export const MedicinesService = {
   getAllMedicines,
   getMedicinebyId,
   getIsFeaturedMedicine,
   getTopViewedMedicine,
+  getAllMedicineByCategoryId,
 };

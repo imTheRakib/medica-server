@@ -10,6 +10,11 @@ router.get(
   authMiddileware(UserRole.CUSTOMER),
   OrderController.getUserOrders,
 );
+router.get(
+  "/all",
+  authMiddileware(UserRole.CUSTOMER, UserRole.ADMIN),
+  OrderController.getAllOrders,
+);
 
 router.get(
   "/customerOrderStats",

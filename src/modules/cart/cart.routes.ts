@@ -18,13 +18,13 @@ router.post(
 );
 
 router.put(
-  "/update",
+  "/item/:cartItemId",
   authMiddileware(UserRole.ADMIN, UserRole.CUSTOMER, UserRole.SELLER),
-  CartController.updateCart,
+  CartController.updateCartItem,
 );
 
 router.delete(
-  "/item/:medicineId",
+  "/item/:cartItemId",
   authMiddileware(UserRole.ADMIN, UserRole.CUSTOMER, UserRole.SELLER),
   CartController.removeFromCart,
 );

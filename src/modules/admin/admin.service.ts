@@ -94,7 +94,7 @@ const getAllTableStats = async () => {
         await tx.reviews.count(),
         await tx.user.count(),
         await tx.user.count({ where: { role: "SELLER" } }),
-        await tx.user.count({ where: { role: "USER" } }),
+        await tx.user.count({ where: { role: "CUSTOMER" } }),
         await tx.medicines.aggregate({ _sum: { views: true } }),
         await tx.medicines.aggregate({ _sum: { price: true } }),
         await tx.medicines.count({ where: { stocks: { lte: 0 } } }),
@@ -121,8 +121,45 @@ const getAllTableStats = async () => {
   );
 };
 
+const deleteUser = async (id: string) => {
+  // Find the user first
+  const user = await prisma.user.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      role: true,
+      status: true,
+    },
+  });
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  //prevent admin delete
+  if (user.role === UserRole.ADMIN) {
+    throw new Error("Cannot delete admin user");
+  }
+
+  const deletedUser = await prisma.user.delete({
+    where: { id },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      role: true,
+      status: true,
+    },
+  });
+
+  return deletedUser;
+};
+
 export const AdminService = {
   getAllUsers,
   updateUserStatus,
   getAllTableStats,
+  deleteUser,
 };

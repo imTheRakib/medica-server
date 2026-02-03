@@ -22,5 +22,10 @@ router.patch(
   authMiddileware(UserRole.ADMIN),
   AdminController.updateUserStatus,
 );
+router.delete(
+  "/users/:id",
+  authMiddileware(UserRole.ADMIN),
+  AdminController.deleteUser,
+);
 
 export const AdminRouter = router;
