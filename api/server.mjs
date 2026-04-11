@@ -9,22 +9,6 @@ import express from "express";
 import { toNodeHandler } from "better-auth/node";
 import cors from "cors";
 
-// src/config/index.ts
-import dotenv from "dotenv";
-import path from "path";
-dotenv.config({ path: path.join(process.cwd(), ".env") });
-var config = {
-  port: process.env.PORT,
-  APP_URL: process.env.APP_URL,
-  APP_USERNANE: process.env.APP_USERNAME,
-  APP_PASSWORD: process.env.APP_PASSWORD,
-  GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
-  GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
-  BETTER_AUTH_URL: process.env.BETTER_AUTH_URL,
-  IMAGEBB_API_KEY: process.env.IMAGEBB_API_KEY
-};
-var config_default = config;
-
 // src/lib/auth.ts
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
@@ -34,12 +18,12 @@ import "dotenv/config";
 import { PrismaPg } from "@prisma/adapter-pg";
 
 // generated/prisma/client.ts
-import * as path2 from "path";
+import * as path from "path";
 import { fileURLToPath } from "url";
 
 // generated/prisma/internal/class.ts
 import * as runtime from "@prisma/client/runtime/client";
-var config2 = {
+var config = {
   "previewFeatures": [],
   "clientVersion": "7.3.0",
   "engineVersion": "9d6ad21cbbceab97458517b147a6a09ff43aa735",
@@ -51,13 +35,13 @@ var config2 = {
     "types": {}
   }
 };
-config2.runtimeDataModel = JSON.parse('{"models":{"User":{"fields":[{"name":"id","kind":"scalar","type":"String"},{"name":"name","kind":"scalar","type":"String"},{"name":"email","kind":"scalar","type":"String"},{"name":"emailVerified","kind":"scalar","type":"Boolean"},{"name":"image","kind":"scalar","type":"String"},{"name":"createdAt","kind":"scalar","type":"DateTime"},{"name":"updatedAt","kind":"scalar","type":"DateTime"},{"name":"sessions","kind":"object","type":"Session","relationName":"SessionToUser"},{"name":"accounts","kind":"object","type":"Account","relationName":"AccountToUser"},{"name":"medicines","kind":"object","type":"Medicines","relationName":"MedicinesToUser"},{"name":"orders","kind":"object","type":"Orders","relationName":"OrdersToUser"},{"name":"reviews","kind":"object","type":"Reviews","relationName":"ReviewsToUser"},{"name":"category","kind":"object","type":"Category","relationName":"CategoryToUser"},{"name":"cart","kind":"object","type":"Cart","relationName":"CartToUser"},{"name":"role","kind":"scalar","type":"String"},{"name":"phone","kind":"scalar","type":"String"},{"name":"status","kind":"scalar","type":"String"}],"dbName":"user"},"Session":{"fields":[{"name":"id","kind":"scalar","type":"String"},{"name":"expiresAt","kind":"scalar","type":"DateTime"},{"name":"token","kind":"scalar","type":"String"},{"name":"createdAt","kind":"scalar","type":"DateTime"},{"name":"updatedAt","kind":"scalar","type":"DateTime"},{"name":"ipAddress","kind":"scalar","type":"String"},{"name":"userAgent","kind":"scalar","type":"String"},{"name":"userId","kind":"scalar","type":"String"},{"name":"user","kind":"object","type":"User","relationName":"SessionToUser"}],"dbName":"session"},"Account":{"fields":[{"name":"id","kind":"scalar","type":"String"},{"name":"accountId","kind":"scalar","type":"String"},{"name":"providerId","kind":"scalar","type":"String"},{"name":"userId","kind":"scalar","type":"String"},{"name":"user","kind":"object","type":"User","relationName":"AccountToUser"},{"name":"accessToken","kind":"scalar","type":"String"},{"name":"refreshToken","kind":"scalar","type":"String"},{"name":"idToken","kind":"scalar","type":"String"},{"name":"accessTokenExpiresAt","kind":"scalar","type":"DateTime"},{"name":"refreshTokenExpiresAt","kind":"scalar","type":"DateTime"},{"name":"scope","kind":"scalar","type":"String"},{"name":"password","kind":"scalar","type":"String"},{"name":"createdAt","kind":"scalar","type":"DateTime"},{"name":"updatedAt","kind":"scalar","type":"DateTime"}],"dbName":"account"},"Verification":{"fields":[{"name":"id","kind":"scalar","type":"String"},{"name":"identifier","kind":"scalar","type":"String"},{"name":"value","kind":"scalar","type":"String"},{"name":"expiresAt","kind":"scalar","type":"DateTime"},{"name":"createdAt","kind":"scalar","type":"DateTime"},{"name":"updatedAt","kind":"scalar","type":"DateTime"}],"dbName":"verification"},"Cart":{"fields":[{"name":"id","kind":"scalar","type":"String"},{"name":"userId","kind":"scalar","type":"String"},{"name":"createdAt","kind":"scalar","type":"DateTime"},{"name":"updatedAt","kind":"scalar","type":"DateTime"},{"name":"user","kind":"object","type":"User","relationName":"CartToUser"},{"name":"items","kind":"object","type":"CartItem","relationName":"CartToCartItem"}],"dbName":"cart"},"CartItem":{"fields":[{"name":"id","kind":"scalar","type":"String"},{"name":"cartId","kind":"scalar","type":"String"},{"name":"medicineId","kind":"scalar","type":"String"},{"name":"quantity","kind":"scalar","type":"Int"},{"name":"createdAt","kind":"scalar","type":"DateTime"},{"name":"updatedAt","kind":"scalar","type":"DateTime"},{"name":"cart","kind":"object","type":"Cart","relationName":"CartToCartItem"},{"name":"medicine","kind":"object","type":"Medicines","relationName":"CartItemToMedicines"}],"dbName":"cart_items"},"Category":{"fields":[{"name":"id","kind":"scalar","type":"String"},{"name":"name","kind":"scalar","type":"String"},{"name":"description","kind":"scalar","type":"String"},{"name":"createdAt","kind":"scalar","type":"DateTime"},{"name":"updatedAt","kind":"scalar","type":"DateTime"},{"name":"userId","kind":"scalar","type":"String"},{"name":"admin","kind":"object","type":"User","relationName":"CategoryToUser"},{"name":"medicines","kind":"object","type":"Medicines","relationName":"CategoryToMedicines"}],"dbName":"category"},"Medicines":{"fields":[{"name":"id","kind":"scalar","type":"String"},{"name":"name","kind":"scalar","type":"String"},{"name":"description","kind":"scalar","type":"String"},{"name":"price","kind":"scalar","type":"Decimal"},{"name":"stocks","kind":"scalar","type":"Int"},{"name":"thumbnail","kind":"scalar","type":"String"},{"name":"manufacturer","kind":"scalar","type":"String"},{"name":"isActive","kind":"scalar","type":"Boolean"},{"name":"isFeatured","kind":"scalar","type":"Boolean"},{"name":"categoryId","kind":"scalar","type":"String"},{"name":"userId","kind":"scalar","type":"String"},{"name":"views","kind":"scalar","type":"Int"},{"name":"createdAt","kind":"scalar","type":"DateTime"},{"name":"updatedAt","kind":"scalar","type":"DateTime"},{"name":"category","kind":"object","type":"Category","relationName":"CategoryToMedicines"},{"name":"seller","kind":"object","type":"User","relationName":"MedicinesToUser"},{"name":"orderItems","kind":"object","type":"OrderItems","relationName":"MedicinesToOrderItems"},{"name":"reviews","kind":"object","type":"Reviews","relationName":"MedicinesToReviews"},{"name":"cartItems","kind":"object","type":"CartItem","relationName":"CartItemToMedicines"}],"dbName":"medicines"},"OrderItems":{"fields":[{"name":"id","kind":"scalar","type":"String"},{"name":"orderId","kind":"scalar","type":"String"},{"name":"medicineId","kind":"scalar","type":"String"},{"name":"quantity","kind":"scalar","type":"Int"},{"name":"price","kind":"scalar","type":"Decimal"},{"name":"order","kind":"object","type":"Orders","relationName":"OrderItemsToOrders"},{"name":"medicine","kind":"object","type":"Medicines","relationName":"MedicinesToOrderItems"}],"dbName":"orderItems"},"Orders":{"fields":[{"name":"id","kind":"scalar","type":"String"},{"name":"userId","kind":"scalar","type":"String"},{"name":"totalAmount","kind":"scalar","type":"Decimal"},{"name":"paymentMethod","kind":"scalar","type":"String"},{"name":"status","kind":"enum","type":"OrderStatus"},{"name":"shippingAddress","kind":"scalar","type":"String"},{"name":"createdAt","kind":"scalar","type":"DateTime"},{"name":"updatedAt","kind":"scalar","type":"DateTime"},{"name":"customer","kind":"object","type":"User","relationName":"OrdersToUser"},{"name":"orderItems","kind":"object","type":"OrderItems","relationName":"OrderItemsToOrders"}],"dbName":"orders"},"Reviews":{"fields":[{"name":"id","kind":"scalar","type":"String"},{"name":"userId","kind":"scalar","type":"String"},{"name":"medicineId","kind":"scalar","type":"String"},{"name":"rating","kind":"scalar","type":"Int"},{"name":"comment","kind":"scalar","type":"String"},{"name":"createdAt","kind":"scalar","type":"DateTime"},{"name":"customer","kind":"object","type":"User","relationName":"ReviewsToUser"},{"name":"medicine","kind":"object","type":"Medicines","relationName":"MedicinesToReviews"}],"dbName":"reviews"}},"enums":{},"types":{}}');
+config.runtimeDataModel = JSON.parse('{"models":{"User":{"fields":[{"name":"id","kind":"scalar","type":"String"},{"name":"name","kind":"scalar","type":"String"},{"name":"email","kind":"scalar","type":"String"},{"name":"emailVerified","kind":"scalar","type":"Boolean"},{"name":"image","kind":"scalar","type":"String"},{"name":"createdAt","kind":"scalar","type":"DateTime"},{"name":"updatedAt","kind":"scalar","type":"DateTime"},{"name":"sessions","kind":"object","type":"Session","relationName":"SessionToUser"},{"name":"accounts","kind":"object","type":"Account","relationName":"AccountToUser"},{"name":"medicines","kind":"object","type":"Medicines","relationName":"MedicinesToUser"},{"name":"orders","kind":"object","type":"Orders","relationName":"OrdersToUser"},{"name":"reviews","kind":"object","type":"Reviews","relationName":"ReviewsToUser"},{"name":"category","kind":"object","type":"Category","relationName":"CategoryToUser"},{"name":"cart","kind":"object","type":"Cart","relationName":"CartToUser"},{"name":"role","kind":"scalar","type":"String"},{"name":"phone","kind":"scalar","type":"String"},{"name":"status","kind":"scalar","type":"String"}],"dbName":"user"},"Session":{"fields":[{"name":"id","kind":"scalar","type":"String"},{"name":"expiresAt","kind":"scalar","type":"DateTime"},{"name":"token","kind":"scalar","type":"String"},{"name":"createdAt","kind":"scalar","type":"DateTime"},{"name":"updatedAt","kind":"scalar","type":"DateTime"},{"name":"ipAddress","kind":"scalar","type":"String"},{"name":"userAgent","kind":"scalar","type":"String"},{"name":"userId","kind":"scalar","type":"String"},{"name":"user","kind":"object","type":"User","relationName":"SessionToUser"}],"dbName":"session"},"Account":{"fields":[{"name":"id","kind":"scalar","type":"String"},{"name":"accountId","kind":"scalar","type":"String"},{"name":"providerId","kind":"scalar","type":"String"},{"name":"userId","kind":"scalar","type":"String"},{"name":"user","kind":"object","type":"User","relationName":"AccountToUser"},{"name":"accessToken","kind":"scalar","type":"String"},{"name":"refreshToken","kind":"scalar","type":"String"},{"name":"idToken","kind":"scalar","type":"String"},{"name":"accessTokenExpiresAt","kind":"scalar","type":"DateTime"},{"name":"refreshTokenExpiresAt","kind":"scalar","type":"DateTime"},{"name":"scope","kind":"scalar","type":"String"},{"name":"password","kind":"scalar","type":"String"},{"name":"createdAt","kind":"scalar","type":"DateTime"},{"name":"updatedAt","kind":"scalar","type":"DateTime"}],"dbName":"account"},"Verification":{"fields":[{"name":"id","kind":"scalar","type":"String"},{"name":"identifier","kind":"scalar","type":"String"},{"name":"value","kind":"scalar","type":"String"},{"name":"expiresAt","kind":"scalar","type":"DateTime"},{"name":"createdAt","kind":"scalar","type":"DateTime"},{"name":"updatedAt","kind":"scalar","type":"DateTime"}],"dbName":"verification"},"Cart":{"fields":[{"name":"id","kind":"scalar","type":"String"},{"name":"userId","kind":"scalar","type":"String"},{"name":"createdAt","kind":"scalar","type":"DateTime"},{"name":"updatedAt","kind":"scalar","type":"DateTime"},{"name":"user","kind":"object","type":"User","relationName":"CartToUser"},{"name":"items","kind":"object","type":"CartItem","relationName":"CartToCartItem"}],"dbName":"cart"},"CartItem":{"fields":[{"name":"id","kind":"scalar","type":"String"},{"name":"cartId","kind":"scalar","type":"String"},{"name":"medicineId","kind":"scalar","type":"String"},{"name":"quantity","kind":"scalar","type":"Int"},{"name":"createdAt","kind":"scalar","type":"DateTime"},{"name":"updatedAt","kind":"scalar","type":"DateTime"},{"name":"cart","kind":"object","type":"Cart","relationName":"CartToCartItem"},{"name":"medicine","kind":"object","type":"Medicines","relationName":"CartItemToMedicines"}],"dbName":"cart_items"},"Category":{"fields":[{"name":"id","kind":"scalar","type":"String"},{"name":"name","kind":"scalar","type":"String"},{"name":"description","kind":"scalar","type":"String"},{"name":"createdAt","kind":"scalar","type":"DateTime"},{"name":"updatedAt","kind":"scalar","type":"DateTime"},{"name":"userId","kind":"scalar","type":"String"},{"name":"admin","kind":"object","type":"User","relationName":"CategoryToUser"},{"name":"medicines","kind":"object","type":"Medicines","relationName":"CategoryToMedicines"}],"dbName":"category"},"Medicines":{"fields":[{"name":"id","kind":"scalar","type":"String"},{"name":"name","kind":"scalar","type":"String"},{"name":"description","kind":"scalar","type":"String"},{"name":"price","kind":"scalar","type":"Decimal"},{"name":"stocks","kind":"scalar","type":"Int"},{"name":"thumbnail","kind":"scalar","type":"String"},{"name":"manufacturer","kind":"scalar","type":"String"},{"name":"isActive","kind":"scalar","type":"Boolean"},{"name":"isFeatured","kind":"scalar","type":"Boolean"},{"name":"categoryId","kind":"scalar","type":"String"},{"name":"userId","kind":"scalar","type":"String"},{"name":"views","kind":"scalar","type":"Int"},{"name":"createdAt","kind":"scalar","type":"DateTime"},{"name":"updatedAt","kind":"scalar","type":"DateTime"},{"name":"category","kind":"object","type":"Category","relationName":"CategoryToMedicines"},{"name":"seller","kind":"object","type":"User","relationName":"MedicinesToUser"},{"name":"orderItems","kind":"object","type":"OrderItems","relationName":"MedicinesToOrderItems"},{"name":"reviews","kind":"object","type":"Reviews","relationName":"MedicinesToReviews"},{"name":"cartItems","kind":"object","type":"CartItem","relationName":"CartItemToMedicines"}],"dbName":"medicines"},"OrderItems":{"fields":[{"name":"id","kind":"scalar","type":"String"},{"name":"orderId","kind":"scalar","type":"String"},{"name":"medicineId","kind":"scalar","type":"String"},{"name":"quantity","kind":"scalar","type":"Int"},{"name":"price","kind":"scalar","type":"Decimal"},{"name":"order","kind":"object","type":"Orders","relationName":"OrderItemsToOrders"},{"name":"medicine","kind":"object","type":"Medicines","relationName":"MedicinesToOrderItems"}],"dbName":"orderItems"},"Orders":{"fields":[{"name":"id","kind":"scalar","type":"String"},{"name":"userId","kind":"scalar","type":"String"},{"name":"totalAmount","kind":"scalar","type":"Decimal"},{"name":"paymentMethod","kind":"scalar","type":"String"},{"name":"status","kind":"enum","type":"OrderStatus"},{"name":"shippingAddress","kind":"scalar","type":"String"},{"name":"createdAt","kind":"scalar","type":"DateTime"},{"name":"updatedAt","kind":"scalar","type":"DateTime"},{"name":"customer","kind":"object","type":"User","relationName":"OrdersToUser"},{"name":"orderItems","kind":"object","type":"OrderItems","relationName":"OrderItemsToOrders"}],"dbName":"orders"},"Reviews":{"fields":[{"name":"id","kind":"scalar","type":"String"},{"name":"userId","kind":"scalar","type":"String"},{"name":"medicineId","kind":"scalar","type":"String"},{"name":"rating","kind":"scalar","type":"Int"},{"name":"comment","kind":"scalar","type":"String"},{"name":"createdAt","kind":"scalar","type":"DateTime"},{"name":"customer","kind":"object","type":"User","relationName":"ReviewsToUser"},{"name":"medicine","kind":"object","type":"Medicines","relationName":"MedicinesToReviews"}],"dbName":"reviews"}},"enums":{},"types":{}}');
 async function decodeBase64AsWasm(wasmBase64) {
   const { Buffer: Buffer2 } = await import("buffer");
   const wasmArray = Buffer2.from(wasmBase64, "base64");
   return new WebAssembly.Module(wasmArray);
 }
-config2.compilerWasm = {
+config.compilerWasm = {
   getRuntime: async () => await import("@prisma/client/runtime/query_compiler_fast_bg.postgresql.mjs"),
   getQueryCompilerWasmModule: async () => {
     const { wasm } = await import("@prisma/client/runtime/query_compiler_fast_bg.postgresql.wasm-base64.mjs");
@@ -66,7 +50,7 @@ config2.compilerWasm = {
   importName: "./query_compiler_fast_bg.js"
 };
 function getPrismaClientClass() {
-  return runtime.getPrismaClient(config2);
+  return runtime.getPrismaClient(config);
 }
 
 // generated/prisma/internal/prismaNamespace.ts
@@ -274,13 +258,31 @@ var NullsOrder = {
 var defineExtension = runtime2.Extensions.defineExtension;
 
 // generated/prisma/client.ts
-globalThis["__dirname"] = path2.dirname(fileURLToPath(import.meta.url));
+globalThis["__dirname"] = path.dirname(fileURLToPath(import.meta.url));
 var PrismaClient = getPrismaClientClass();
 
 // src/lib/prisma.ts
 var connectionString = `${process.env.DATABASE_URL}`;
 var adapter = new PrismaPg({ connectionString });
 var prisma = new PrismaClient({ adapter });
+
+// src/config/index.ts
+import dotenv from "dotenv";
+import path2 from "path";
+dotenv.config({ path: path2.join(process.cwd(), ".env") });
+var config2 = {
+  port: process.env.PORT,
+  APP_URL: process.env.APP_URL,
+  APP_USERNANE: process.env.APP_USERNAME,
+  APP_PASSWORD: process.env.APP_PASSWORD,
+  GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
+  GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
+  BETTER_AUTH_URL: process.env.BETTER_AUTH_URL,
+  IMAGEBB_API_KEY: process.env.IMAGEBB_API_KEY,
+  GROQ_API_KEY: process.env.GROQ_API_KEY,
+  GROQ_MODEL: process.env.GROQ_MODEL || "llama-3.3-70b-versatile"
+};
+var config_default = config2;
 
 // src/lib/auth.ts
 import nodemailer from "nodemailer";
@@ -417,6 +419,22 @@ var auth = betterAuth({
       clientId: config_default.GOOGLE_CLIENT_ID,
       clientSecret: config_default.GOOGLE_CLIENT_SECRET
     }
+  },
+  session: {
+    cookieCache: {
+      enabled: true,
+      maxAge: 5 * 60
+      // 5 minutes
+    }
+  },
+  advanced: {
+    cookiePrefix: "better-auth",
+    useSecureCookies: process.env.NODE_ENV === "production",
+    crossSubDomainCookies: {
+      enabled: false
+    },
+    disableCSRFCheck: true
+    // Allow requests without Origin header (Postman, mobile apps, etc.)
   }
 });
 
@@ -2139,25 +2157,219 @@ var AdminRouter = router5;
 // src/modules/medicines/medicines.routes.ts
 import { Router as Router6 } from "express";
 
+// src/modules/medicines/medicineSearchAi.ts
+import Groq from "groq-sdk";
+var groq = config_default.GROQ_API_KEY ? new Groq({ apiKey: config_default.GROQ_API_KEY }) : null;
+var MAX_AI_KEYWORDS = 8;
+var MAX_SIMILAR_RESULTS = 5;
+var dedupeStrings = (values) => [
+  ...new Set(
+    values.map((value) => value?.trim()).filter((value) => Boolean(value))
+  )
+];
+var safeJsonParse = (value) => {
+  try {
+    return JSON.parse(value);
+  } catch {
+    return null;
+  }
+};
+var sanitizeInsight = (insight) => {
+  if (!insight?.normalizedQuery) {
+    return null;
+  }
+  const intent = insight.intent && [
+    "medicine_search",
+    "availability",
+    "symptom",
+    "brand",
+    "category",
+    "general"
+  ].includes(insight.intent) ? insight.intent : "medicine_search";
+  return {
+    normalizedQuery: insight.normalizedQuery.trim().slice(0, 120),
+    intent,
+    suggestedKeywords: dedupeStrings(
+      (insight.suggestedKeywords || []).slice(0, MAX_AI_KEYWORDS)
+    ),
+    categoryHints: dedupeStrings(
+      (insight.categoryHints || []).slice(0, MAX_AI_KEYWORDS)
+    ),
+    manufacturerHints: dedupeStrings(
+      (insight.manufacturerHints || []).slice(0, MAX_AI_KEYWORDS)
+    )
+  };
+};
+var getSemanticSearchInsight = async (search) => {
+  if (!groq) {
+    return null;
+  }
+  const prompt = `Convert the user's medicine search text into a structured semantic search object.
+Return ONLY valid JSON with this exact shape:
+{
+  "normalizedQuery": string,
+  "intent": "medicine_search" | "availability" | "symptom" | "brand" | "category" | "general",
+  "suggestedKeywords": string[],
+  "categoryHints": string[],
+  "manufacturerHints": string[]
+}
+
+Rules:
+- Use short search-friendly keywords.
+- If the user mentions symptoms, infer medicine-related terms that would help find matching medicines.
+- If the user mentions a brand/product name, keep it in normalizedQuery and suggestedKeywords.
+- Do not add markdown, explanation, or extra text.
+- Do not mention backend or APIs.
+`;
+  try {
+    const completion = await groq.chat.completions.create({
+      model: config_default.GROQ_MODEL,
+      temperature: 0,
+      max_tokens: 220,
+      top_p: 1,
+      messages: [
+        { role: "system", content: prompt },
+        { role: "user", content: search }
+      ]
+    });
+    const raw3 = completion.choices?.[0]?.message?.content?.trim() || "";
+    const parsed = safeJsonParse(raw3);
+    return sanitizeInsight(parsed);
+  } catch (error) {
+    console.error("Semantic search AI error", error);
+    return null;
+  }
+};
+var buildSearchTerms = (search, insight) => {
+  const terms = [
+    search,
+    insight?.normalizedQuery,
+    ...insight?.suggestedKeywords || [],
+    ...insight?.categoryHints || [],
+    ...insight?.manufacturerHints || []
+  ];
+  return dedupeStrings(terms).slice(0, MAX_AI_KEYWORDS);
+};
+var buildSearchConditions = (terms) => terms.flatMap((term) => [
+  {
+    name: {
+      contains: term,
+      mode: "insensitive"
+    }
+  },
+  {
+    description: {
+      contains: term,
+      mode: "insensitive"
+    }
+  },
+  {
+    manufacturer: {
+      contains: term,
+      mode: "insensitive"
+    }
+  }
+]);
+var getSimilarMedicines = async (payload) => {
+  const orConditions = buildSearchConditions(payload.terms);
+  const similar = await prisma.medicines.findMany({
+    where: {
+      isActive: true,
+      stocks: { gt: 0 },
+      ...payload.excludeIds.length ? {
+        id: {
+          notIn: payload.excludeIds
+        }
+      } : {},
+      ...payload.categoryId ? {
+        categoryId: payload.categoryId
+      } : {},
+      ...orConditions.length ? {
+        OR: orConditions
+      } : {}
+    },
+    take: MAX_SIMILAR_RESULTS,
+    orderBy: [{ views: "desc" }, { createdAt: "desc" }],
+    include: {
+      category: {
+        select: {
+          id: true,
+          name: true
+        }
+      }
+    }
+  });
+  const transformedSimilar = similar.map((medicine) => ({
+    ...medicine,
+    price: Number(medicine.price)
+  }));
+  if (transformedSimilar.length > 0) {
+    return transformedSimilar;
+  }
+  return prisma.medicines.findMany({
+    where: {
+      isActive: true,
+      stocks: { gt: 0 },
+      ...payload.excludeIds.length ? {
+        id: {
+          notIn: payload.excludeIds
+        }
+      } : {},
+      ...payload.categoryId ? {
+        categoryId: payload.categoryId
+      } : {}
+    },
+    take: MAX_SIMILAR_RESULTS,
+    orderBy: [{ views: "desc" }, { createdAt: "desc" }],
+    include: {
+      category: {
+        select: {
+          id: true,
+          name: true
+        }
+      }
+    }
+  }).then(
+    (items) => items.map((medicine) => ({
+      ...medicine,
+      price: Number(medicine.price)
+    }))
+  );
+};
+var medicineSearchAi = {
+  getSemanticSearchInsight,
+  buildSearchTerms,
+  getSimilarMedicines
+};
+
 // src/modules/medicines/medicines.service.ts
+var MAX_SIMILAR_RESULTS2 = 5;
 var getAllMedicines = async (payload) => {
   const andConditions = [];
-  if (payload.search) {
+  const searchInsight = payload.search ? await medicineSearchAi.getSemanticSearchInsight(payload.search) : null;
+  const searchTerms = payload.search ? medicineSearchAi.buildSearchTerms(payload.search, searchInsight) : [];
+  if (searchTerms.length) {
     andConditions.push({
-      OR: [
+      OR: searchTerms.flatMap((term) => [
         {
           name: {
-            contains: payload.search,
+            contains: term,
             mode: "insensitive"
           }
         },
         {
           description: {
-            contains: payload.search,
+            contains: term,
+            mode: "insensitive"
+          }
+        },
+        {
+          manufacturer: {
+            contains: term,
             mode: "insensitive"
           }
         }
-      ]
+      ])
     });
   }
   if (typeof payload.isActive === "boolean") {
@@ -2215,8 +2427,15 @@ var getAllMedicines = async (payload) => {
     ...medicine,
     price: Number(medicine.price)
   }));
+  const recommendations = payload.search && transformedResult.length < MAX_SIMILAR_RESULTS2 ? await medicineSearchAi.getSimilarMedicines({
+    terms: searchTerms,
+    excludeIds: transformedResult.map((medicine) => medicine.id),
+    categoryId: payload.categoryId
+  }) : [];
   return {
     response: transformedResult,
+    recommendations,
+    searchInsight,
     meta: {
       page: payload.page,
       limit: payload.limit,
@@ -3069,12 +3288,375 @@ router8.delete(
 );
 var CartRouter = router8;
 
+// src/modules/chatbot/chatbot.routes.ts
+import { Router as Router9 } from "express";
+
+// src/modules/chatbot/chatbot.service.ts
+import Groq2 from "groq-sdk";
+var MAX_HISTORY_CONTEXT = 10;
+var groq2 = new Groq2({
+  apiKey: config_default.GROQ_API_KEY
+});
+var projectContext = `You are Medica Assistant for the Medica application.
+
+Project summary:
+- Roles: CUSTOMER, SELLER, ADMIN.
+- Core capabilities: medicines, orders, cart, category, reviews, seller management, admin controls.
+
+Your responsibilities:
+- Help users understand Medica features and how the app works.
+- Answer with concise and practical user-facing guidance.
+- Use only the provided public context data for statistics, product availability, and best-selling items.
+- If asked something unknown, say that clearly instead of inventing details.
+- Do not expose secrets, API keys, or sensitive data.
+- Never mention API endpoints, backend routes, database tables, or technical implementation details in user responses.
+- Keep answers focused on what users can do in the app.`;
+var hasAvailabilityIntent = (message) => {
+  const normalized = message.toLowerCase();
+  return [
+    "available",
+    "availability",
+    "in stock",
+    "stock",
+    "have ",
+    "can i buy"
+  ].some((token) => normalized.includes(token));
+};
+var normalizeSearchTerm = (value) => value.replace(/\b(medicine|product|item|called|name)\b/gi, "").replace(/\s+/g, " ").trim().slice(0, 80);
+var extractAvailabilityQuery = (message) => {
+  const patterns = [
+    /is\s+(.+?)\s+(available|in stock)/i,
+    /availability\s+of\s+(.+)/i,
+    /do\s+you\s+have\s+(.+)/i,
+    /can\s+i\s+buy\s+(.+)/i,
+    /looking\s+for\s+(?:a\s+)?(?:medicine\s+)?(?:called\s+)?(.+)/i,
+    /need\s+(?:a\s+)?(?:medicine\s+)?(?:called\s+)?(.+)/i,
+    /find\s+(?:a\s+)?(?:medicine\s+)?(?:called\s+)?(.+)/i
+  ];
+  for (const pattern of patterns) {
+    const match = message.match(pattern);
+    const query = match?.[1]?.trim();
+    if (query) {
+      const normalized = normalizeSearchTerm(query.replace(/[?.,!;:]/g, ""));
+      if (normalized) {
+        return normalized;
+      }
+    }
+  }
+  return null;
+};
+var buildAvailabilityDirectResponse = (latestUserMessage, availabilityMatches) => {
+  if (!hasAvailabilityIntent(latestUserMessage)) {
+    return null;
+  }
+  const query = extractAvailabilityQuery(latestUserMessage);
+  if (!query) {
+    return "At this moment, I could not identify the medicine name clearly. Please share the exact medicine name.";
+  }
+  if (!availabilityMatches.length) {
+    return `At this moment, "${query}" is not available on this website.`;
+  }
+  const exactMatch = availabilityMatches.find(
+    (item) => item.name.toLowerCase() === query.toLowerCase()
+  );
+  const selected = exactMatch || availabilityMatches[0];
+  if (!selected?.isAvailable) {
+    return `At this moment, "${selected?.name}" is listed but out of stock.`;
+  }
+  return `Yes, at this moment "${selected.name}" is available on this website. Current stock: ${selected.stocks}.`;
+};
+var getBestSellingProducts = async () => {
+  const grouped = await prisma.orderItems.groupBy({
+    by: ["medicineId"],
+    where: {
+      order: {
+        status: {
+          not: "CANCELLED"
+        }
+      }
+    },
+    _sum: {
+      quantity: true
+    },
+    orderBy: {
+      _sum: {
+        quantity: "desc"
+      }
+    },
+    take: 8
+  });
+  if (!grouped.length) {
+    return [];
+  }
+  const ids = grouped.map((item) => item.medicineId);
+  const medicines = await prisma.medicines.findMany({
+    where: {
+      id: {
+        in: ids
+      }
+    },
+    select: {
+      id: true,
+      name: true,
+      manufacturer: true,
+      stocks: true,
+      isActive: true
+    }
+  });
+  const medicineMap = new Map(
+    medicines.map((medicine) => [medicine.id, medicine])
+  );
+  return grouped.map((item) => {
+    const medicine = medicineMap.get(item.medicineId);
+    if (!medicine) return null;
+    return {
+      medicineId: medicine.id,
+      name: medicine.name,
+      manufacturer: medicine.manufacturer,
+      stocks: medicine.stocks,
+      isActive: medicine.isActive,
+      totalSoldUnits: item._sum.quantity || 0
+    };
+  }).filter((item) => item !== null);
+};
+var getAvailabilityMatches = async (message) => {
+  if (!hasAvailabilityIntent(message)) {
+    return [];
+  }
+  const searchTerm = extractAvailabilityQuery(message);
+  if (!searchTerm) {
+    return [];
+  }
+  const matches = await prisma.medicines.findMany({
+    where: {
+      isActive: true,
+      name: {
+        contains: searchTerm,
+        mode: "insensitive"
+      }
+    },
+    select: {
+      id: true,
+      name: true,
+      manufacturer: true,
+      stocks: true,
+      price: true,
+      category: {
+        select: {
+          name: true
+        }
+      }
+    },
+    take: 5,
+    orderBy: [
+      {
+        stocks: "desc"
+      },
+      {
+        views: "desc"
+      }
+    ]
+  });
+  return matches.map((item) => ({
+    medicineId: item.id,
+    name: item.name,
+    manufacturer: item.manufacturer,
+    stocks: item.stocks,
+    isAvailable: item.stocks > 0,
+    price: Number(item.price),
+    category: item.category.name
+  }));
+};
+var getPublicProjectContext = async (message) => {
+  const [
+    totalMedicines,
+    activeMedicines,
+    inStockMedicines,
+    totalCategories,
+    totalOrders,
+    bestSellingProducts,
+    availabilityMatches
+  ] = await Promise.all([
+    prisma.medicines.count(),
+    prisma.medicines.count({ where: { isActive: true } }),
+    prisma.medicines.count({ where: { isActive: true, stocks: { gt: 0 } } }),
+    prisma.category.count(),
+    prisma.orders.count(),
+    getBestSellingProducts(),
+    getAvailabilityMatches(message)
+  ]);
+  return {
+    appOverview: {
+      name: "Medica",
+      description: "Medicine Management and E-commerce application",
+      features: [
+        "Medicine browsing and search",
+        "Featured and top-viewed products",
+        "Cart and order processing",
+        "Customer reviews",
+        "Seller inventory management",
+        "Role-based admin controls"
+      ]
+    },
+    marketplaceSnapshot: {
+      totalMedicines,
+      activeMedicines,
+      inStockMedicines,
+      totalCategories,
+      totalOrders
+    },
+    bestSellingProducts,
+    availabilityMatches
+  };
+};
+var createChatCompletion = async (messages) => {
+  if (!config_default.GROQ_API_KEY) {
+    throw new Error("GROQ_API_KEY is missing in environment variables");
+  }
+  const latestUserMessage = [...messages].reverse().find((item) => item.role === "user")?.content || "";
+  const publicContext = await getPublicProjectContext(latestUserMessage);
+  const availabilityDirectResponse = buildAvailabilityDirectResponse(
+    latestUserMessage,
+    publicContext.availabilityMatches
+  );
+  if (availabilityDirectResponse) {
+    return availabilityDirectResponse;
+  }
+  const safeHistory = messages.slice(-MAX_HISTORY_CONTEXT);
+  let content = "";
+  try {
+    const completion = await groq2.chat.completions.create({
+      model: config_default.GROQ_MODEL,
+      messages: [
+        {
+          role: "system",
+          content: `${projectContext}
+
+Public Context (JSON):
+${JSON.stringify(publicContext)}`
+        },
+        ...safeHistory
+      ],
+      temperature: 0.2,
+      max_tokens: 700,
+      top_p: 1
+    });
+    content = completion.choices?.[0]?.message?.content?.trim() || "";
+  } catch (error) {
+    console.error("Groq request failed", error);
+    throw new Error("Failed to communicate with AI service");
+  }
+  if (!content) {
+    throw new Error("Failed to generate AI response");
+  }
+  return content;
+};
+var ChatbotService = {
+  createChatCompletion
+};
+
+// src/modules/chatbot/chatbot.controller.ts
+var MAX_MESSAGE_LENGTH = 1500;
+var MAX_HISTORY_ITEMS = 12;
+var MAX_HISTORY_CONTENT_LENGTH = 1e3;
+var chatWithAssistant = async (req, res, next) => {
+  try {
+    const { message, history } = req.body;
+    if (!message || !message.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: "message is required"
+      });
+    }
+    if (message.length > MAX_MESSAGE_LENGTH) {
+      return res.status(400).json({
+        success: false,
+        message: `message is too long. Max ${MAX_MESSAGE_LENGTH} characters allowed`
+      });
+    }
+    const validHistory = Array.isArray(history) ? history.slice(-MAX_HISTORY_ITEMS).filter(
+      (item) => item?.content && (item.role === "user" || item.role === "assistant")
+    ).map((item) => ({
+      role: item.role,
+      content: item.content.slice(0, MAX_HISTORY_CONTENT_LENGTH)
+    })) : [];
+    const reply = await ChatbotService.createChatCompletion([
+      ...validHistory,
+      { role: "user", content: message.trim() }
+    ]);
+    res.status(200).json({
+      success: true,
+      message: "Assistant response generated",
+      data: {
+        reply
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+var ChatbotController = {
+  chatWithAssistant
+};
+
+// src/modules/chatbot/chatbot.rateLimit.ts
+var WINDOW_MS = 5 * 60 * 1e3;
+var MAX_REQUESTS_PER_WINDOW = 30;
+var requestStore = /* @__PURE__ */ new Map();
+var chatbotRateLimit = (req, res, next) => {
+  const now = Date.now();
+  const key = req.ip || req.headers["x-forwarded-for"]?.toString() || "unknown";
+  const current = requestStore.get(key);
+  if (!current || now > current.resetAt) {
+    requestStore.set(key, {
+      count: 1,
+      resetAt: now + WINDOW_MS
+    });
+    return next();
+  }
+  if (current.count >= MAX_REQUESTS_PER_WINDOW) {
+    return res.status(429).json({
+      success: false,
+      message: "Too many chatbot requests. Please try again later."
+    });
+  }
+  current.count += 1;
+  requestStore.set(key, current);
+  next();
+};
+
+// src/modules/chatbot/chatbot.routes.ts
+var router9 = Router9();
+router9.get("/health", (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "Chatbot module is healthy"
+  });
+});
+router9.post("/chat", chatbotRateLimit, ChatbotController.chatWithAssistant);
+var ChatbotRouter = router9;
+
 // src/app.ts
 var app = express();
+var allowedOrigins = [
+  process.env.APP_URL || "http://localhost:3000",
+  process.env.PROD_APP_URL
+].filter(Boolean);
 app.use(
   cors({
-    origin: config_default.APP_URL,
-    credentials: true
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      const isAllowed = allowedOrigins.includes(origin) || /^https:\/\/next-blog-client.*\.vercel\.app$/.test(origin) || /^https:\/\/.*\.vercel\.app$/.test(origin);
+      if (isAllowed) {
+        callback(null, true);
+      } else {
+        callback(new Error(`Origin ${origin} not allowed by CORS`));
+      }
+    },
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
+    exposedHeaders: ["Set-Cookie"]
   })
 );
 app.use(express.json());
@@ -3092,7 +3674,8 @@ app.get("/", (req, res) => {
       seller: "/api/seller",
       admin: "/api/admin",
       categories: "/api/category",
-      reviews: "/api/reviews"
+      reviews: "/api/reviews",
+      chatbot: "/api/chatbot"
     },
     features: {
       medicines: [
@@ -3131,6 +3714,7 @@ app.use("/api/category", CategoryRouter);
 app.use("/api/admin", AdminRouter);
 app.use("/api/reviews", ReviewRouter);
 app.use("/api/cart", CartRouter);
+app.use("/api/chatbot", ChatbotRouter);
 app.use(globalErrorHandler_default);
 app.use(notFound);
 var app_default = app;

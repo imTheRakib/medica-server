@@ -1,5 +1,8 @@
 import { MedicinesWhereInput } from "../../../generated/prisma/models";
 import { prisma } from "../../lib/prisma";
+import { medicineSearchAi } from "./medicineSearchAi";
+
+const MAX_SIMILAR_RESULTS = 5;
 
 const getAllMedicines = async (payload: {
   search: string | undefined;
@@ -13,23 +16,35 @@ const getAllMedicines = async (payload: {
   sortOrder: string;
 }) => {
   const andConditions: MedicinesWhereInput[] = [];
+  const searchInsight = payload.search
+    ? await medicineSearchAi.getSemanticSearchInsight(payload.search)
+    : null;
+  const searchTerms = payload.search
+    ? medicineSearchAi.buildSearchTerms(payload.search, searchInsight)
+    : [];
 
-  if (payload.search) {
+  if (searchTerms.length) {
     andConditions.push({
-      OR: [
+      OR: searchTerms.flatMap((term) => [
         {
           name: {
-            contains: payload.search as string,
-            mode: "insensitive",
+            contains: term,
+            mode: "insensitive" as const,
           },
         },
         {
           description: {
-            contains: payload.search as string,
-            mode: "insensitive",
+            contains: term,
+            mode: "insensitive" as const,
           },
         },
-      ],
+        {
+          manufacturer: {
+            contains: term,
+            mode: "insensitive" as const,
+          },
+        },
+      ]),
     });
   }
 
@@ -96,8 +111,19 @@ const getAllMedicines = async (payload: {
     price: Number(medicine.price),
   }));
 
+  const recommendations =
+    payload.search && transformedResult.length < MAX_SIMILAR_RESULTS
+      ? await medicineSearchAi.getSimilarMedicines({
+          terms: searchTerms,
+          excludeIds: transformedResult.map((medicine) => medicine.id),
+          categoryId: payload.categoryId,
+        })
+      : [];
+
   return {
     response: transformedResult,
+    recommendations,
+    searchInsight,
     meta: {
       page: payload.page,
       limit: payload.limit,

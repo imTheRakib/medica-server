@@ -181,6 +181,10 @@ APP_PASSWORD=your_app_specific_password
 
 # Image Upload
 IMAGEBB_API_KEY=your_imagebb_api_key
+
+# AI Chatbot (Groq)
+GROQ_API_KEY=your_groq_api_key
+GROQ_MODEL=llama-3.3-70b-versatile
 ```
 
 ### Environment Variable Descriptions
@@ -196,6 +200,63 @@ IMAGEBB_API_KEY=your_imagebb_api_key
 | `APP_USERNAME`         | Email account for sending verification emails | Yes      |
 | `APP_PASSWORD`         | App-specific password for email service       | Yes      |
 | `IMAGEBB_API_KEY`      | ImageBB API key for image uploads             | Yes      |
+| `GROQ_API_KEY`         | Groq API key for chatbot responses            | Yes (for chatbot) |
+| `GROQ_MODEL`           | Groq model name (optional, default provided)  | No       |
+
+---
+
+## AI Chatbot Endpoint
+
+You can now use a project-aware AI assistant endpoint from this backend.
+
+### Endpoint
+
+```http
+POST /api/chatbot/chat
+```
+
+### Request Body
+
+```json
+{
+  "message": "How can I place an order in Medica?",
+  "history": [
+    { "role": "user", "content": "Tell me about medicines API" },
+    { "role": "assistant", "content": "Use /api/medicines ..." }
+  ]
+}
+```
+
+### Response
+
+```json
+{
+  "success": true,
+  "message": "Assistant response generated",
+  "data": {
+    "reply": "You can place order using POST /api/orders ..."
+  }
+}
+```
+
+### Next.js Frontend Example
+
+```ts
+const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/chatbot/chat`, {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  credentials: "include",
+  body: JSON.stringify({
+    message: userMessage,
+    history: chatHistory,
+  }),
+});
+
+const result = await response.json();
+const assistantReply = result?.data?.reply;
+```
 
 ---
 

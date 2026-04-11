@@ -12,6 +12,8 @@ const config = {
   GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
   BETTER_AUTH_URL: process.env.BETTER_AUTH_URL,
   IMAGEBB_API_KEY: process.env.IMAGEBB_API_KEY,
+  GROQ_API_KEY: process.env.GROQ_API_KEY,
+  GROQ_MODEL: process.env.GROQ_MODEL || "llama-3.3-70b-versatile",
 };
 
 export default config;
