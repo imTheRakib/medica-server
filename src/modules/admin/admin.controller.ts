@@ -1,13 +1,17 @@
 import { NextFunction, Request, Response } from "express";
 import { AdminService } from "./admin.service";
 import paginationAndSortgHelper from "../../helpers/paginationAndSorting";
+import { UserRole } from "../../types/enums/UserRoles";
 
 const getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
   try {
     //pagination
     const { page, limit, skip } = paginationAndSortgHelper(req.query);
 
-    const result = await AdminService.getAllUsers({ page, limit, skip });
+    const result = await AdminService.getAllUsers(
+      { page, limit, skip },
+      req.user?.role as UserRole,
+    );
 
     res.status(200).json({
       success: true,
@@ -30,6 +34,7 @@ const updateUserStatus = async (
     const result = await AdminService.updateUserStatus(
       userId as string,
       status,
+      req.user?.role as UserRole,
     );
 
     res.status(200).json({
@@ -64,7 +69,10 @@ const deleteUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id: userId } = req.params;
 
-    const result = await AdminService.deleteUser(userId as string);
+    const result = await AdminService.deleteUser(
+      userId as string,
+      req.user?.role as UserRole,
+    );
 
     res.status(200).json({
       success: true,

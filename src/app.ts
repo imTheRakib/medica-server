@@ -14,6 +14,7 @@ import { notFound } from "./middlewares/notFound";
 import { ReviewRouter } from "./modules/reviews/reviews.routes";
 import { CartRouter } from "./modules/cart/cart.routes";
 import { ChatbotRouter } from "./modules/chatbot/chatbot.routes";
+import { PharmacistRouter } from "./modules/pharmacist/pharmacist.routes";
 
 const app = express();
 
@@ -69,6 +70,7 @@ app.get("/", (req: Request, res: Response) => {
       categories: "/api/category",
       reviews: "/api/reviews",
       chatbot: "/api/chatbot",
+      pharmacist: "/api/pharmacist",
     },
     features: {
       medicines: [
@@ -118,6 +120,8 @@ app.use("/api/reviews", ReviewRouter);
 app.use("/api/cart", CartRouter);
 
 app.use("/api/chatbot", ChatbotRouter);
+
+app.use("/api/pharmacist", PharmacistRouter);
 
 app.use(errorHandler);
 

@@ -2,6 +2,22 @@ import { NextFunction, Request, Response } from "express";
 import { auth as betterAuth } from "../lib/auth";
 import { UserRole } from "../types/enums/UserRoles";
 
+const hasRequiredRole = (userRole: UserRole, allowedRoles: UserRole[]) => {
+  if (allowedRoles.includes(userRole)) {
+    return true;
+  }
+
+  // Super admin inherits all admin permissions.
+  if (
+    userRole === UserRole.SUPER_ADMIN &&
+    allowedRoles.includes(UserRole.ADMIN)
+  ) {
+    return true;
+  }
+
+  return false;
+};
+
 const authMiddileware = (...roles: UserRole[]) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -34,7 +50,7 @@ const authMiddileware = (...roles: UserRole[]) => {
       };
 
       //check role
-      if (roles.length && !roles.includes(req.user.role as UserRole)) {
+      if (roles.length && !hasRequiredRole(req.user.role as UserRole, roles)) {
         return res.status(403).json({
           success: false,
           message:

@@ -164,6 +164,7 @@ const getSimilarMedicines = async (payload: {
   const similar = await prisma.medicines.findMany({
     where: {
       isActive: true,
+      verificationStatus: "APPROVED",
       stocks: { gt: 0 },
       ...(payload.excludeIds.length
         ? {
@@ -208,6 +209,7 @@ const getSimilarMedicines = async (payload: {
     .findMany({
       where: {
         isActive: true,
+        verificationStatus: "APPROVED",
         stocks: { gt: 0 },
         ...(payload.excludeIds.length
           ? {

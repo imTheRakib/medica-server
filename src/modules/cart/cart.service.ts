@@ -38,7 +38,7 @@ const addtoCart = async (
     where: { id: medicineId },
   });
 
-  if (!medicine) {
+  if (!medicine || medicine.verificationStatus !== "APPROVED" || !medicine.isActive) {
     throw new Error("Medicine not found");
   }
 
@@ -128,6 +128,13 @@ const updateCartItem = async (
 
   if (cartItem.medicine.stocks < quantity) {
     throw new Error("Insufficient stock available");
+  }
+
+  if (
+    cartItem.medicine.verificationStatus !== "APPROVED" ||
+    !cartItem.medicine.isActive
+  ) {
+    throw new Error("This medicine is currently unavailable");
   }
 
   const updatedCartItem = await prisma.cartItem.update({

@@ -17,11 +17,15 @@ const createReview = async (userId: string, payload: ICreateReviewInput) => {
   // check medicine exists
   const medicine = await prisma.medicines.findUnique({
     where: { id: medicineId },
-    select: { id: true, name: true },
+    select: { id: true, name: true, isActive: true, verificationStatus: true },
   });
 
   if (!medicine) {
     throw new Error("Medicine not found");
+  }
+
+  if (medicine.verificationStatus !== "APPROVED" || !medicine.isActive) {
+    throw new Error("You can review only approved active medicines");
   }
 
   // check if user aleready give review or not

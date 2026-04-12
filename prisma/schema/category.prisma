@@ -8,6 +8,7 @@ model Category {
 
   admin     User        @relation(fields: [userId], references: [id])
   medicines Medicines[]
+  recommendations CategoryRecommendation[]
 
   @@map("category")
   @@index([userId])

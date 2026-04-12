@@ -12,6 +12,10 @@ model User {
   orders        Orders[]
   reviews       Reviews[]
   category      Category[]
+  pharmacistVerifiedMedicines Medicines[]             @relation("MedicineVerifiedByPharmacist")
+  categoryRecommendations    CategoryRecommendation[]
+  medicineQuestions          MedicineQuestion[]       @relation("CustomerMedicineQuestions")
+  medicineQuestionReplies    MedicineQuestionReply[]
   cart          Cart?
 
 

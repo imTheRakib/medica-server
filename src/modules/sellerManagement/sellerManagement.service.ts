@@ -55,6 +55,11 @@ const createMedicine = async (
       ...data,
       userId: userId,
       thumbnail: thumbnailUrl,
+      isActive: false,
+      verificationStatus: "PENDING",
+      verificationNote: "Pending pharmacist verification",
+      verifiedById: null,
+      verifiedAt: null,
     },
     include: {
       category: {
@@ -97,12 +102,24 @@ const updateMedicine = async (
     throw new Error("You are not the owner/creator of the medicine!");
   }
 
+  const {
+    id,
+    userId: _userId,
+    createdAt,
+    updatedAt,
+    verificationStatus,
+    verificationNote,
+    verifiedById,
+    verifiedAt,
+    ...allowedUpdates
+  } = data;
+
   //update
   const result = await prisma.medicines.update({
     where: {
       id: medicineData.id,
     },
-    data,
+    data: allowedUpdates,
   });
 
   return result;

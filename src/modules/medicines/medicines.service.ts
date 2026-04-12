@@ -54,6 +54,10 @@ const getAllMedicines = async (payload: {
     });
   }
 
+  andConditions.push({
+    verificationStatus: "APPROVED",
+  });
+
   if (payload.userId) {
     andConditions.push({
       userId: payload.userId,
@@ -180,6 +184,13 @@ const getMedicinebyId = async (medicineId: string) => {
         throw new Error("Medicine not found");
       }
 
+      if (
+        !medicineData.isActive ||
+        medicineData.verificationStatus !== "APPROVED"
+      ) {
+        throw new Error("Medicine not found");
+      }
+
       // increment views
       await tx.medicines.update({
         where: {
@@ -208,6 +219,7 @@ const getIsFeaturedMedicine = async () => {
     where: {
       isFeatured: true,
       isActive: true,
+      verificationStatus: "APPROVED",
       stocks: { gt: 0 },
     },
     take: 10,
@@ -275,6 +287,7 @@ const getTopViewedMedicine = async () => {
   const result = await prisma.medicines.findMany({
     where: {
       isActive: true,
+      verificationStatus: "APPROVED",
       stocks: { gt: 0 },
     },
     take: 10,
@@ -393,6 +406,10 @@ const getAllMedicineByCategoryId = async (payload: {
       isActive: payload.isActive,
     });
   }
+
+  andConditions.push({
+    verificationStatus: "APPROVED",
+  });
 
   const result = await prisma.medicines.findMany({
     take: payload.limit,

@@ -2,25 +2,31 @@ import { prisma } from "../../lib/prisma";
 import { UserRole } from "../../types/enums/UserRoles";
 import { UserStatus } from "../../types/enums/UserStatus";
 
-const getAllUsers = async (payload: {
-  page: number;
-  limit: number;
-  skip: number;
-}) => {
+const getAllUsers = async (
+  payload: {
+    page: number;
+    limit: number;
+    skip: number;
+  },
+  requesterRole: UserRole,
+) => {
+  const whereCondition =
+    requesterRole === UserRole.SUPER_ADMIN
+      ? {}
+      : {
+          role: {
+            notIn: [UserRole.ADMIN, UserRole.SUPER_ADMIN],
+          },
+        };
+
   const result = await prisma.user.findMany({
     take: payload.limit,
     skip: payload.skip,
-    where: {
-      role: {
-        not: UserRole.ADMIN,
-      },
-    },
+    where: whereCondition,
   });
 
   const total = await prisma.user.count({
-    where: {
-      role: { not: UserRole.ADMIN },
-    },
+    where: whereCondition,
   });
 
   return {
@@ -34,7 +40,11 @@ const getAllUsers = async (payload: {
   };
 };
 
-const updateUserStatus = async (userId: string, newStatus: UserStatus) => {
+const updateUserStatus = async (
+  userId: string,
+  newStatus: UserStatus,
+  requesterRole: UserRole,
+) => {
   //find user
   const findUser = await prisma.user.findUnique({ where: { id: userId } });
 
@@ -42,8 +52,15 @@ const updateUserStatus = async (userId: string, newStatus: UserStatus) => {
     throw new Error("User not found");
   }
 
-  if (findUser.role === UserRole.ADMIN) {
-    throw new Error("Cannot update admin user status");
+  if (findUser.role === UserRole.SUPER_ADMIN) {
+    throw new Error("Cannot update super admin user status");
+  }
+
+  if (
+    findUser.role === UserRole.ADMIN &&
+    requesterRole !== UserRole.SUPER_ADMIN
+  ) {
+    throw new Error("Only super admin can update admin user status");
   }
 
   if (!Object.values(UserStatus).includes(newStatus)) {
@@ -121,7 +138,7 @@ const getAllTableStats = async () => {
   );
 };
 
-const deleteUser = async (id: string) => {
+const deleteUser = async (id: string, requesterRole: UserRole) => {
   // Find the user first
   const user = await prisma.user.findUnique({
     where: { id },
@@ -139,8 +156,12 @@ const deleteUser = async (id: string) => {
   }
 
   //prevent admin delete
-  if (user.role === UserRole.ADMIN) {
-    throw new Error("Cannot delete admin user");
+  if (user.role === UserRole.SUPER_ADMIN) {
+    throw new Error("Cannot delete super admin user");
+  }
+
+  if (user.role === UserRole.ADMIN && requesterRole !== UserRole.SUPER_ADMIN) {
+    throw new Error("Only super admin can delete admin user");
   }
 
   const deletedUser = await prisma.user.delete({

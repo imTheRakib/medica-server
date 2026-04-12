@@ -8,6 +8,10 @@ model Medicines {
   manufacturer String
   isActive     Boolean  @default(true)
   isFeatured   Boolean  @default(false)
+  verificationStatus MedicineVerificationStatus @default(PENDING)
+  verificationNote   String?                    @db.Text
+  verifiedById       String?
+  verifiedAt         DateTime?
   categoryId   String
   userId       String
   views        Int      @default(0)
@@ -16,14 +20,17 @@ model Medicines {
 
   category   Category     @relation(fields: [categoryId], references: [id])
   seller     User         @relation(fields: [userId], references: [id])
+  verifiedBy User?        @relation("MedicineVerifiedByPharmacist", fields: [verifiedById], references: [id])
   orderItems OrderItems[]
   reviews    Reviews[]
   cartItems  CartItem[]
+  questions  MedicineQuestion[]
 
   @@unique([name, userId, manufacturer], name: "unique_medicine_per_seller")
 
   //indexing
   @@index([userId])
   @@index([categoryId])
+  @@index([verificationStatus])
   @@map("medicines")
 }

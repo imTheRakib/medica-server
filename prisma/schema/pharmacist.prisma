@@ -1,0 +1,69 @@
+enum MedicineVerificationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum QuestionStatus {
+  OPEN
+  ANSWERED
+  CLOSED
+}
+
+enum ReplyStatus {
+  ACTIVE
+  HIDDEN
+}
+
+model CategoryRecommendation {
+  id           String   @id @default(uuid())
+  categoryId   String
+  pharmacistId String
+  note         String   @db.Text
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  pharmacist User     @relation(fields: [pharmacistId], references: [id], onDelete: Cascade)
+
+  @@index([categoryId])
+  @@index([pharmacistId])
+  @@map("categoryRecommendation")
+}
+
+model MedicineQuestion {
+  id         String         @id @default(uuid())
+  customerId String
+  medicineId String
+  question   String         @db.Text
+  status     QuestionStatus @default(OPEN)
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+
+  customer User      @relation("CustomerMedicineQuestions", fields: [customerId], references: [id], onDelete: Cascade)
+  medicine Medicines @relation(fields: [medicineId], references: [id], onDelete: Cascade)
+  replies  MedicineQuestionReply[]
+
+  @@index([customerId])
+  @@index([medicineId])
+  @@index([status])
+  @@map("medicineQuestion")
+}
+
+model MedicineQuestionReply {
+  id           String      @id @default(uuid())
+  questionId   String
+  pharmacistId String
+  reply        String      @db.Text
+  status       ReplyStatus @default(ACTIVE)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  question   MedicineQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  pharmacist User             @relation(fields: [pharmacistId], references: [id], onDelete: Cascade)
+
+  @@index([questionId])
+  @@index([pharmacistId])
+  @@index([status])
+  @@map("medicineQuestionReply")
+}

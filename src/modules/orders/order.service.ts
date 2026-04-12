@@ -37,11 +37,20 @@ const createOrder = async (
         name: true,
         stocks: true,
         userId: true,
+        isActive: true,
+        verificationStatus: true,
       },
     });
 
     if (!medicineData) {
       throw new Error(`Medicine not found: ${item.medicineId}`);
+    }
+
+    if (
+      medicineData.verificationStatus !== "APPROVED" ||
+      !medicineData.isActive
+    ) {
+      throw new Error(`Medicine is not available: ${medicineData.name}`);
     }
 
     if (medicineData.stocks < item.quantity) {
